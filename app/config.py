@@ -31,11 +31,11 @@ class Settings:
         # =========================
         self.SECRET_KEY = os.getenv("SECRET_KEY", "")
         self.JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-        self.ACCESS_TOKEN_EXPIRE_MINUTES = int(
-            os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
+        self.ACCESS_TOKEN_EXPIRE_MINUTES = self._get_int(
+            "ACCESS_TOKEN_EXPIRE_MINUTES", 30
         )
-        self.REFRESH_TOKEN_EXPIRE_DAYS = int(
-            os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7")
+        self.REFRESH_TOKEN_EXPIRE_DAYS = self._get_int(
+            "REFRESH_TOKEN_EXPIRE_DAYS", 7
         )
 
         # =========================
@@ -95,7 +95,7 @@ class Settings:
             "https://api.groq.com/openai/v1",
         )
 
-        self.GROQ_TIMEOUT = int(os.getenv("GROQ_TIMEOUT", "120"))
+        self.GROQ_TIMEOUT = self._get_int("GROQ_TIMEOUT", 120)
 
         self.DEFAULT_MAX_CONTEXT_TOKENS = self._get_int(
             "DEFAULT_MAX_CONTEXT_TOKENS", 6000
@@ -114,24 +114,20 @@ class Settings:
         self.DEFAULT_RESERVE_RESPONSE_TOKENS = self._get_int(
             "DEFAULT_RESERVE_RESPONSE_TOKENS", 1000
         )
-        self.THREAT_SCORE_THRESHOLD = float(
-            os.getenv("THREAT_SCORE_THRESHOLD", "70.0")
-        )
-        self.AI_MIN_RISK_SCORE = float(os.getenv("AI_MIN_RISK_SCORE", "50.0"))
+        self.THREAT_SCORE_THRESHOLD = self._get_float("THREAT_SCORE_THRESHOLD", 70.0)
+        self.AI_MIN_RISK_SCORE = self._get_float("AI_MIN_RISK_SCORE", 50.0)
         self.AI_OUTBREAK_THRESHOLD = self._get_int("AI_OUTBREAK_THRESHOLD", 10)
-        self.AI_SIMILARITY_THRESHOLD = float(
-            os.getenv("AI_SIMILARITY_THRESHOLD", "60.0")
+        self.AI_SIMILARITY_THRESHOLD = self._get_float(
+            "AI_SIMILARITY_THRESHOLD", 60.0
         )
 
         # =========================
         # Scheduler
         # =========================
-        self.OUTBREAK_INTERVAL_MINUTES = int(
-            os.getenv("OUTBREAK_INTERVAL_MINUTES", "10")
+        self.OUTBREAK_INTERVAL_MINUTES = self._get_int(
+            "OUTBREAK_INTERVAL_MINUTES", 10
         )
-        self.WEATHER_INTERVAL_HOURS = int(
-            os.getenv("WEATHER_INTERVAL_HOURS", "24")
-        )
+        self.WEATHER_INTERVAL_HOURS = self._get_int("WEATHER_INTERVAL_HOURS", 24)
         self.SCHEDULER_ENABLED = (
             os.getenv("SCHEDULER_ENABLED", "True").lower() == "true"
         )
@@ -151,7 +147,7 @@ class Settings:
         # Uploads
         # =========================
         self.UPLOAD_DIRECTORY = os.getenv("UPLOAD_DIRECTORY", "uploads")
-        self.MAX_UPLOAD_SIZE_MB = int(os.getenv("MAX_UPLOAD_SIZE_MB", "10"))
+        self.MAX_UPLOAD_SIZE_MB = self._get_int("MAX_UPLOAD_SIZE_MB", 10)
 
         # =========================
         # CORS Origins
@@ -172,7 +168,16 @@ class Settings:
 
         try:
             return int(os.getenv(name, str(default)))
-        except ValueError:
+        except (TypeError, ValueError):
+            return default
+
+    @staticmethod
+    def _get_float(name: str, default: float) -> float:
+        """Read a float setting while preserving a safe default."""
+
+        try:
+            return float(os.getenv(name, str(default)))
+        except (TypeError, ValueError):
             return default
 
     def _build_database_url(self) -> str:
