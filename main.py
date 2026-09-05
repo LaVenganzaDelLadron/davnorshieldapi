@@ -49,7 +49,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    # This API is intentionally consumable by clients hosted on any domain.
+    # A regex is used instead of ``[\"*\"]`` so credentialed browser requests
+    # receive the calling origin in ``Access-Control-Allow-Origin``.
+    allow_origins=[],
+    allow_origin_regex=r".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -70,4 +74,3 @@ async def health() -> dict[str, str]:
     """Return application health status."""
 
     return {"status": "healthy"}
-
