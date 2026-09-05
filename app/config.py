@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 import json
 from typing import Any
-
-from pydantic import AliasChoices, Field, field_validator
+from urllib.parse import quote, urlsplit, urlunsplit
+from pydantic import AliasChoices, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 
 class Settings(BaseSettings):
@@ -21,50 +26,41 @@ class Settings(BaseSettings):
     )
 
     # Application
-    APP_NAME: str = "CyberShield DN API"
-    APP_VERSION: str = "1.0.0"
-    API_V1_PREFIX: str = "/api/v1"
-    DEBUG: bool = False
-    ENVIRONMENT: str = "development"
-    PROJECT_NAME: str = "CyberShield DN"
+    APP_NAME = os.getenv("APP_NAME")
+    APP_VERSION = os.getenv("APP_VERSION")
+    API_V1_PREFIX = os.getenv("API_V1_PREFIX")
+    DEBUG = os.getenv("DEBUG")
+    ENVIRONMENT = os.getenv("ENVIRONMENT")
+    PROJECT_NAME: str = "DavnorShield"
     TIMEZONE: str = "Asia/Manila"
 
     # JWT
-    SECRET_KEY: str = Field(default="change-me-in-production", min_length=8)
-    JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    SECRET_KEY = os.getenv("SECRET_KEY")
+    JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
+    ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+    REFRESH_TOKEN_EXPIRE_DAYS = os.getenv("REFRESH_TOKEN_EXPIRE_DAYS")
 
     # PostgreSQL
-    DATABASE_URL: str = Field(
-        default="postgresql+asyncpg://postgres:postgres@postgres:5432/cybershield_dn",
-        validation_alias=AliasChoices("DATABASE_URL", "DATABASE_SEURL"),
-    )
+    DATABASE_URL = os.getenv("DATABASE_URL")
     DATABASE_HOST: str = "postgres"
     DATABASE_PORT: int = 5432
     DATABASE_USER: str = "postgres"
     DATABASE_PASSWORD: str = "postgres"
-    DATABASE_NAME: str = "cybershield_dn"
+    DATABASE_NAME: str = "tagumshieldapi"
 
     # Firebase
-    FIREBASE_PROJECT_ID: str | None = Field(
-        default=None,
-        validation_alias=AliasChoices("FIREBASE_PROJECT_ID", "PROJECT_ID"),
-    )
+    FIREBASE_PROJECT_ID = os.getenv("PROJECT_ID")
     FIREBASE_CREDENTIALS_PATH: str | None = None
-    FIREBASE_API_KEY: str | None = Field(default=None, validation_alias=AliasChoices("FIREBASE_API_KEY", "API_KEY"))
-    FIREBASE_AUTH_DOMAIN: str | None = Field(default=None, validation_alias=AliasChoices("FIREBASE_AUTH_DOMAIN", "AUTH_DOMAIN"))
-    FIREBASE_STORAGE_BUCKET: str | None = Field(default=None, validation_alias=AliasChoices("FIREBASE_STORAGE_BUCKET", "STORAGE_BUCKET"))
-    FIREBASE_MESSAGING_SENDER_ID: str | None = Field(default=None, validation_alias=AliasChoices("FIREBASE_MESSAGING_SENDER_ID", "MESSAGING_SENDER_ID"))
-    FIREBASE_APP_ID: str | None = Field(default=None, validation_alias=AliasChoices("FIREBASE_APP_ID", "APP_ID"))
-    FIREBASE_MEASUREMENT_ID: str | None = Field(default=None, validation_alias=AliasChoices("FIREBASE_MEASUREMENT_ID", "MEASUREMENT_ID"))
+    FIREBASE_API_KEY = os.getenv("API_KEY")
+    FIREBASE_AUTH_DOMAIN = os.getenv("AUTH_DOMAIN")
+    FIREBASE_STORAGE_BUCKET = os.getenv("STORAGE_BUCKET")
+    FIREBASE_MESSAGING_SENDER_ID = os.getenv("MESSAGING_SENDER_ID")
+    FIREBASE_APP_ID = os.getenv("APP_ID")
+    FIREBASE_MEASUREMENT_ID = os.getenv("MEASUREMENT_ID")
 
     # AI Engine
     AI_PROVIDER: str = Field(default="groq", validation_alias=AliasChoices("AI_PROVIDER"))
-    AI_MODEL: str = Field(
-        default="openai/gpt-oss-120b",
-        validation_alias=AliasChoices("AI_MODEL", "GROQ_MODEL"),
-    )
+    AI_MODEL = os.getenv("GROQ_MODEL")
     AI_API_KEY: str = Field(
         default="",
         validation_alias=AliasChoices("AI_API_KEY", "GROQ_API_KEY1"),
@@ -73,11 +69,11 @@ class Settings(BaseSettings):
         default=(),
         validation_alias=AliasChoices("GROQ_API_KEYS"),
     )
-    GROQ_API_KEY1: str | None = None
-    GROQ_API_KEY2: str | None = None
-    GROQ_API_KEY3: str | None = None
-    GROQ_API_KEY4: str | None = None
-    GROQ_API_KEY5: str | None = None
+    GROQ_API_KEY1 = os.getenv("GROQ_API_KEY1")
+    GROQ_API_KEY2 = os.getenv("GROQ_API_KEY2")
+    GROQ_API_KEY3 = os.getenv("GROQ_API_KEY3")
+    GROQ_API_KEY4 = os.getenv("GROQ_API_KEY4")
+    GROQ_API_KEY5 = os.getenv("GROQ_API_KEY5")
     GROQ_BASE_URL: str = "https://api.groq.com/openai/v1"
     GROQ_TIMEOUT: int = 120
     DEFAULT_MAX_CONTEXT_TOKENS: int = 6000
@@ -146,6 +142,31 @@ class Settings(BaseSettings):
                 return [str(origin).strip() for origin in parsed if str(origin).strip()]
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return [str(origin).strip() for origin in value if str(origin).strip()]
+
+    @model_validator(mode="after")
+    def normalize_database_url(self) -> "Settings":
+        """Normalize legacy PostgreSQL URLs using the typed database settings."""
+
+        parsed = urlsplit(self.DATABASE_URL)
+        if parsed.scheme not in {"postgresql", "postgresql+asyncpg"}:
+            return self
+
+        host = parsed.hostname or self.DATABASE_HOST
+        port = parsed.port or self.DATABASE_PORT
+        username = quote(parsed.username or self.DATABASE_USER, safe="")
+        password = quote(parsed.password or self.DATABASE_PASSWORD, safe="")
+        database = parsed.path.lstrip("/") or self.DATABASE_NAME
+        query = parsed.query
+        self.DATABASE_URL = urlunsplit(
+            (
+                "postgresql+asyncpg",
+                f"{username}:{password}@{host}:{port}",
+                f"/{database}",
+                query,
+                parsed.fragment,
+            )
+        )
+        return self
 
 
 @lru_cache(maxsize=1)
