@@ -10,13 +10,27 @@ from app.schemas.report import (
 )
 from app.schemas.scanner import QRScanRequest, SMSScanRequest, ScanResponse, URLScanRequest
 from app.schemas.school import SchoolStatsResponse
+from app.schemas.location import (
+    BarangayCreate,
+    BarangayResponse,
+    BarangayUpdate,
+    MunicipalityCreate,
+    MunicipalityResponse,
+    MunicipalityUpdate,
+)
 from app.schemas.user import UserCreate, UserPublic, UserResponse, UserUpdate
 from app.schemas.weather import CyberWeatherResponse
 
 __all__ = [
     "AlertResponse",
+    "BarangayCreate",
+    "BarangayResponse",
+    "BarangayUpdate",
     "CyberWeatherResponse",
     "LoginRequest",
+    "MunicipalityCreate",
+    "MunicipalityResponse",
+    "MunicipalityUpdate",
     "QRScanRequest",
     "RefreshTokenRequest",
     "ReportCreate",
@@ -33,4 +47,3 @@ __all__ = [
     "UserResponse",
     "UserUpdate",
 ]
-

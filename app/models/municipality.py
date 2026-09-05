@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String
+from sqlalchemy import Boolean, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base, UUIDMixin
@@ -30,6 +30,12 @@ class Municipality(UUIDMixin, Base):
         nullable=False,
     )
     province: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default=text("true"),
+    )
 
     barangays: Mapped[list["Barangay"]] = relationship(
         "Barangay",
