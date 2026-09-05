@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import imghdr
 from pathlib import Path
 from uuid import uuid4
 
-from app.utils.constants import ALLOWED_IMAGE_EXTENSIONS, MAX_UPLOAD_SIZE_BYTES
+from app.config import settings
+from app.utils.constants import ALLOWED_IMAGE_EXTENSIONS
 
 
 def generate_unique_filename(original_filename: str) -> str:
@@ -27,25 +27,19 @@ def _detect_image_extension(file_bytes: bytes) -> str | None:
         return ".jpg"
     if file_bytes[0:4] == b"RIFF" and file_bytes[8:12] == b"WEBP":
         return ".webp"
-    detected = imghdr.what(None, h=file_bytes)
-    if detected == "jpeg":
-        return ".jpg"
-    if detected == "png":
-        return ".png"
-    if detected == "webp":
-        return ".webp"
     return None
 
 
 def save_report_image(
     file_bytes: bytes,
     original_filename: str,
-    upload_dir: str | Path = "uploads/reports",
+    upload_dir: str | Path | None = None,
 ) -> Path:
     """Persist an uploaded report image to disk after validation."""
 
-    if len(file_bytes) > MAX_UPLOAD_SIZE_BYTES:
-        raise ValueError("File exceeds the 10 MB limit.")
+    max_size = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+    if len(file_bytes) > max_size:
+        raise ValueError(f"File exceeds the {settings.MAX_UPLOAD_SIZE_MB} MB limit.")
 
     filename = generate_unique_filename(original_filename)
     suffix = Path(filename).suffix.lower()
@@ -62,7 +56,7 @@ def save_report_image(
     if detected_suffix not in allowed_suffixes:
         # Preserve the requested extension but reject mismatched payloads.
         raise ValueError("Image extension does not match file contents.")
-    destination_dir = Path(upload_dir)
+    destination_dir = Path(upload_dir or settings.REPORT_IMAGE_DIR)
     destination_dir.mkdir(parents=True, exist_ok=True)
     destination_path = destination_dir / filename
     destination_path.write_bytes(file_bytes)

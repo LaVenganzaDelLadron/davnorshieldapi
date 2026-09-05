@@ -5,7 +5,6 @@ from __future__ import annotations
 from app.constants import AlertLevel, ReportStatus, ThreatCategory, UserRole
 
 
-MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024
 ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 DEFAULT_PAGE_SIZE = 20
 MAX_PAGE_SIZE = 100

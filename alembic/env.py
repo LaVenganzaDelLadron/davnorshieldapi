@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -11,6 +10,7 @@ from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.database.base import Base
+from app.config import settings
 
 # Import all models so metadata is populated.
 from app.models import alert as _alert  # noqa: F401
@@ -32,9 +32,9 @@ target_metadata = Base.metadata
 
 
 def get_database_url() -> str:
-    """Return the migration database URL from the environment."""
+    """Return the migration database URL from centralized settings."""
 
-    database_url = os.getenv("DATABASE_URL", config.get_main_option("sqlalchemy.url"))
+    database_url = settings.DATABASE_URL or config.get_main_option("sqlalchemy.url")
     if database_url.startswith("postgresql://"):
         return database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
     return database_url
@@ -84,4 +84,3 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     asyncio.run(run_migrations_online())
-

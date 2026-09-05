@@ -6,7 +6,6 @@ from app.utils.constants import (
     DEFAULT_OUTBREAK_THRESHOLD,
     DEFAULT_PAGE_SIZE,
     MAX_PAGE_SIZE,
-    MAX_UPLOAD_SIZE_BYTES,
     OUTBREAK_WINDOW_HOURS,
     AlertLevel,
     ReportStatus,

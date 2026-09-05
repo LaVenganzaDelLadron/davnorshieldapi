@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from urllib.parse import urlparse
 
+from app.config import settings
 from app.constants import ThreatCategory
 from app.ai.keyword_model import detect_profile
 from app.ai.recommendation_engine import generate_recommendations
@@ -120,18 +121,23 @@ def detect_phishing(url: str, text_context: str = "") -> dict[str, object]:
     ) + min(score, 20.0)
     score = round(min(score, 100.0), 2)
 
-    if score >= 75:
+    if score >= settings.THREAT_SCORE_THRESHOLD:
         explanation = "High-confidence phishing indicators detected."
-    elif score >= 45:
+    elif score >= settings.THREAT_SCORE_THRESHOLD / 2:
         explanation = "Moderate phishing risk detected."
     else:
         explanation = "Low phishing indicators detected."
 
     return {
         "score": score,
-        "risk_level": "DANGEROUS" if score >= 75 else "SUSPICIOUS" if score >= 45 else "SAFE",
+        "risk_level": (
+            "DANGEROUS"
+            if score >= settings.THREAT_SCORE_THRESHOLD
+            else "SUSPICIOUS"
+            if score >= settings.THREAT_SCORE_THRESHOLD / 2
+            else "SAFE"
+        ),
         "category": ThreatCategory.phishing,
         "explanation": explanation,
         "detected_indicators": indicators,
     }
-

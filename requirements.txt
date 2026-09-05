@@ -14,7 +14,6 @@ apscheduler==3.10.4
 httpx==0.28.1
 firebase-admin==6.6.0
 pillow==11.0.0
-python-dotenv==1.0.1
 orjson==3.10.15
 structlog==24.4.0
 pytest==8.3.4

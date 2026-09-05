@@ -19,9 +19,8 @@ def register_jobs() -> None:
 
     scheduler.add_job(
         run_cyber_weather_job,
-        trigger="cron",
-        hour=settings.CYBER_WEATHER_CRON_HOUR,
-        minute=settings.CYBER_WEATHER_CRON_MINUTE,
+        trigger="interval",
+        hours=settings.WEATHER_INTERVAL_HOURS,
         id="cyber_weather_job",
         replace_existing=True,
         max_instances=1,
@@ -30,7 +29,7 @@ def register_jobs() -> None:
     scheduler.add_job(
         run_outbreak_job,
         trigger="interval",
-        seconds=settings.OUTBREAK_INTERVAL_SECONDS,
+        minutes=settings.OUTBREAK_INTERVAL_MINUTES,
         id="outbreak_job",
         replace_existing=True,
         max_instances=1,
@@ -80,4 +79,3 @@ def shutdown_scheduler() -> None:
 
     if scheduler.running:
         scheduler.shutdown(wait=False)
-

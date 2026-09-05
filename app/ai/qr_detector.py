@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from urllib.parse import urlparse
 
+from app.config import settings
 from app.constants import ThreatCategory
 from app.ai.phishing_detector import detect_phishing
 from app.ai.recommendation_engine import generate_recommendations
@@ -42,7 +43,13 @@ def analyze_qr(qr_text: str) -> dict[str, object]:
         explanation = "QR destination does not resolve to a URL, but still deserves caution."
         category = ThreatCategory.qr_scam
 
-    risk_level = "DANGEROUS" if score >= 75 else "SUSPICIOUS" if score >= 35 else "SAFE"
+    risk_level = (
+        "DANGEROUS"
+        if score >= settings.THREAT_SCORE_THRESHOLD
+        else "SUSPICIOUS"
+        if score >= settings.THREAT_SCORE_THRESHOLD / 2
+        else "SAFE"
+    )
     return {
         "score": round(min(score, 100.0), 2),
         "risk_level": risk_level,

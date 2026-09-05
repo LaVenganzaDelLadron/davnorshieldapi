@@ -8,7 +8,7 @@ from typing import Any
 import bcrypt
 from jose import JWTError, jwt
 
-from app.core.config import settings
+from app.config import settings
 from app.models.enums import UserRole
 
 
@@ -64,4 +64,3 @@ def decode_access_token(token: str) -> dict[str, Any]:
     if "sub" not in payload or "role" not in payload or "exp" not in payload:
         raise JWTError("Token payload is missing required claims.")
     return payload
-

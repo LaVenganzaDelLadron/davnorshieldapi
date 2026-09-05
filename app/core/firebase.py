@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from app.core.config import settings
+from app.config import settings
 
 try:  # pragma: no cover - optional dependency
     import firebase_admin
@@ -38,7 +38,13 @@ class FirebaseService:
         if self._initialized or firebase_admin is None:
             return
         if not firebase_admin._apps:  # type: ignore[attr-defined]
-            firebase_admin.initialize_app()  # pragma: no cover - external integration
+            if credentials is not None and settings.FIREBASE_CREDENTIALS_PATH:
+                firebase_admin.initialize_app(
+                    credentials.Certificate(settings.FIREBASE_CREDENTIALS_PATH),
+                    options={"projectId": self.project_id},
+                )  # pragma: no cover - external integration
+            else:
+                firebase_admin.initialize_app()  # pragma: no cover - external integration
         self._initialized = True
 
     def send_notification(

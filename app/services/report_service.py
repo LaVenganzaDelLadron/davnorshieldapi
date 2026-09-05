@@ -10,6 +10,7 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.models.enums import ReportStatus, ThreatCategory
 from app.models.scam_report import ScamReport
 from app.repositories.report_repository import ReportRepository
@@ -45,11 +46,17 @@ class ReportService:
         self,
         file_bytes: bytes,
         original_filename: str,
-        upload_dir: str | Path = "uploads/reports",
+        upload_dir: str | Path | None = None,
     ) -> str:
         """Persist a screenshot and return its filesystem path."""
 
-        return str(save_report_image(file_bytes, original_filename, upload_dir=upload_dir))
+        return str(
+            save_report_image(
+                file_bytes,
+                original_filename,
+                upload_dir=upload_dir or settings.REPORT_IMAGE_DIR,
+            )
+        )
 
     def calculate_initial_threat_score(
         self,

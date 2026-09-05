@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from app.config import settings
 from app.constants import ThreatCategory
 from app.ai.keyword_model import detect_profile
 from app.ai.recommendation_engine import generate_recommendations
@@ -59,9 +60,9 @@ def detect_sms_scam(message: str) -> dict[str, object]:
     score += min(len(keywords) * 0.8, 8.0)
     score = round(min(score, 100.0), 2)
 
-    if score >= 70:
+    if score >= settings.THREAT_SCORE_THRESHOLD:
         risk_level = "DANGEROUS"
-    elif score >= 35:
+    elif score >= settings.THREAT_SCORE_THRESHOLD / 2:
         risk_level = "SUSPICIOUS"
     else:
         risk_level = "SAFE"
@@ -77,4 +78,3 @@ def detect_sms_scam(message: str) -> dict[str, object]:
         "keywords": keywords[:20],
         "recommendations": generate_recommendations(ThreatCategory.sms_scam, language="en"),
     }
-
