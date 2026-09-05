@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="CyberShield DN API",
+    title="DavnorShield API",
     version="1.0.0",
     description="AI-powered community cyber threat intelligence platform for Davao del Norte.",
     docs_url="/docs",
