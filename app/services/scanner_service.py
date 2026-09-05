@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 from app.ai.phishing_detector import detect_phishing
 from app.ai.qr_detector import detect_qr_threat
 from app.ai.sms_detector import detect_sms_scam
@@ -17,41 +19,52 @@ from app.utils.validator import validate_qr_data, validate_url
 class ScannerService:
     """Heuristic scanner service for URLs, SMS, and QR payloads."""
 
+    @staticmethod
+    def _normalize_scan_result(result: Mapping[str, object]) -> ScanResponse:
+        """Convert AI detector output into the public scanner schema."""
+
+        category_value = result.get("category", ThreatCategory.other)
+        if isinstance(category_value, ThreatCategory):
+            category = category_value
+        else:
+            try:
+                category = ThreatCategory(str(category_value))
+            except ValueError:
+                category = ThreatCategory.other
+        score = result.get("risk_score", result.get("score", 0.0))
+        risk_level = str(result.get("risk_level", "SAFE"))
+        explanation = str(result.get("explanation", "No explanation available."))
+        recommendations = result.get("recommendations", [])
+        if not isinstance(recommendations, list):
+            recommendations = list(recommendations)  # type: ignore[arg-type]
+        return ScanResponse(
+            risk_score=float(score),
+            risk_level=risk_level,
+            threat_category=category,
+            explanation=explanation,
+            recommendations=[str(item) for item in recommendations],
+        )
+
     async def scan_url(self, payload: URLScanRequest) -> ScanResponse:
         """Scan a URL for phishing indicators."""
 
         url = validate_url(str(payload.url))
         result = detect_phishing(url)
-        return ScanResponse(
-            risk_score=float(result["risk_score"]),
-            threat_category=result["threat_category"],
-            explanation=str(result["explanation"]),
-            recommendations=list(result["recommendations"]),
-        )
+        return self._normalize_scan_result(result)
 
     async def scan_sms(self, payload: SMSScanRequest) -> ScanResponse:
         """Scan an SMS message for scam patterns."""
 
         message = clean_message(payload.message)
         result = detect_sms_scam(message)
-        return ScanResponse(
-            risk_score=float(result["risk_score"]),
-            threat_category=result["threat_category"],
-            explanation=str(result["explanation"]),
-            recommendations=list(result["recommendations"]),
-        )
+        return self._normalize_scan_result(result)
 
     async def scan_qr(self, payload: QRScanRequest) -> ScanResponse:
         """Scan QR text payloads for scam patterns."""
 
         qr_data = validate_qr_data(payload.qr_data)
         result = detect_qr_threat(qr_data)
-        return ScanResponse(
-            risk_score=float(result["risk_score"]),
-            threat_category=result["threat_category"],
-            explanation=str(result["explanation"]),
-            recommendations=list(result["recommendations"]),
-        )
+        return self._normalize_scan_result(result)
 
     async def analyze_text(self, text: str) -> ScanResponse:
         """Analyze arbitrary text for threat indicators."""
@@ -80,8 +93,8 @@ class ScannerService:
         domain = extract_domain(links[0]) if links else "n/a"
         return ScanResponse(
             risk_score=risk_score,
+            risk_level="DANGEROUS" if risk_score >= 75 else "SUSPICIOUS" if risk_score >= 35 else "SAFE",
             threat_category=category,
             explanation=f"Analyzed text with domain context {domain}.",
             recommendations=recommendations,
         )
-

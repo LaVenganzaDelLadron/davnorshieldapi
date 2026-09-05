@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.school import School
@@ -73,3 +74,23 @@ class SchoolService:
         )
         return await self.schools.update_awareness_score(school_id, score)
 
+    async def get_school(self, school_id: UUID) -> School | None:
+        """Return a school by UUID."""
+
+        school = await self.schools.get_school(school_id)
+        if school is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="School not found.")
+        return school
+
+    async def list_schools(self, municipality_id: UUID | None = None) -> list[School]:
+        """Return schools, optionally filtered by municipality."""
+
+        return await self.schools.list_schools(municipality_id=municipality_id)
+
+    async def update_awareness_score(self, school_id: UUID, awareness_score: float) -> School:
+        """Update a school's awareness score."""
+
+        school = await self.schools.update_awareness_score(school_id, awareness_score)
+        if school is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="School not found.")
+        return school

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -126,6 +127,25 @@ class WeatherService:
         recommendations = self._recommendations(risk_level)
         return WeatherResult(weather=weather, recommendations=recommendations)
 
+    async def generate_cyber_weather(
+        self,
+        municipality_id: UUID,
+        *,
+        phishing_reports: int | None = None,
+        sms_reports: int | None = None,
+        qr_reports: int | None = None,
+        marketplace_reports: int | None = None,
+    ) -> WeatherResult:
+        """Backward-compatible alias for daily cyber weather generation."""
+
+        return await self.generate_daily_weather(
+            municipality_id,
+            phishing_reports=phishing_reports,
+            sms_reports=sms_reports,
+            qr_reports=qr_reports,
+            marketplace_reports=marketplace_reports,
+        )
+
     async def get_weather_response(self, municipality_id: UUID) -> CyberWeatherResponse | None:
         """Return the latest weather response schema for a municipality."""
 
@@ -134,3 +154,17 @@ class WeatherService:
             return None
         return CyberWeatherResponse.model_validate(weather)
 
+    async def get_today_weather(self, municipality_id: UUID) -> CyberWeather | None:
+        """Return today's weather record."""
+
+        return await self.weather.get_today_weather(municipality_id)
+
+    async def get_history(self, municipality_id: UUID, *, limit: int = 30) -> list[CyberWeather]:
+        """Return weather history for a municipality."""
+
+        return await self.weather.get_weather_history(municipality_id, limit=limit)
+
+    async def get_municipality_weather(self, municipality_id: UUID) -> CyberWeather | None:
+        """Return the latest weather record for a municipality."""
+
+        return await self.weather.get_municipality_weather(municipality_id)

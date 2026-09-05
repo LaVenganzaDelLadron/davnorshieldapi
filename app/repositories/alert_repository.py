@@ -40,6 +40,16 @@ class AlertRepository(RepositoryBase):
         await self.db.refresh(alert)
         return alert
 
+    async def delete_alert(self, alert_id: UUID) -> bool:
+        """Delete an alert by UUID."""
+
+        alert = await self.get_alert(alert_id)
+        if alert is None:
+            return False
+        await self.db.delete(alert)
+        await self.db.commit()
+        return True
+
     async def list_alerts(
         self,
         *,
@@ -96,4 +106,3 @@ class AlertRepository(RepositoryBase):
         )
         count_stmt = self._count_statement(Alert, Alert.municipality_id == municipality_id)
         return await self._paginate(stmt, count_stmt, page=page, size=size)
-

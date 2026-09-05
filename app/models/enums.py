@@ -24,8 +24,20 @@ class ThreatCategory(str, Enum):
     sms_scam = "sms_scam"
     qr_scam = "qr_scam"
     marketplace_scam = "marketplace_scam"
+    fake_job = "fake_job"
+    fake_investment = "fake_investment"
+    identity_theft = "identity_theft"
     malware = "malware"
     other = "other"
+    PHISHING = phishing
+    SMS_SCAM = sms_scam
+    QR_SCAM = qr_scam
+    MARKETPLACE_SCAM = marketplace_scam
+    FAKE_JOB = fake_job
+    FAKE_INVESTMENT = fake_investment
+    IDENTITY_THEFT = identity_theft
+    MALWARE = malware
+    OTHER = other
 
 
 class AlertLevel(str, Enum):
@@ -35,15 +47,25 @@ class AlertLevel(str, Enum):
     medium = "medium"
     high = "high"
     critical = "critical"
+    LOW = low
+    MEDIUM = medium
+    HIGH = high
+    CRITICAL = critical
 
 
 class ReportStatus(str, Enum):
     """Lifecycle states for scam reports."""
 
     pending = "pending"
-    investigating = "investigating"
+    verified = "verified"
     resolved = "resolved"
-    dismissed = "dismissed"
+    rejected = "rejected"
+    PENDING = pending
+    VERIFIED = verified
+    RESOLVED = resolved
+    REJECTED = rejected
+    investigating = verified
+    dismissed = rejected
 
 
 def _enum_type(enum_cls: type[Enum], name: str) -> SAEnum:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from uuid import UUID
 
@@ -191,6 +192,22 @@ class ReportService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found.")
         return updated
 
+    async def get_report(self, report_id: UUID) -> ScamReport:
+        """Return a report by UUID."""
+
+        report = await self.reports.get_report(report_id)
+        if report is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found.")
+        return report
+
+    async def delete_report(self, report_id: UUID) -> bool:
+        """Delete a report."""
+
+        deleted = await self.reports.delete_report(report_id)
+        if not deleted:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found.")
+        return deleted
+
     async def get_reports_feed(
         self,
         *,
@@ -212,6 +229,31 @@ class ReportService:
             status=status_filter,
         )
 
+    async def list_reports(
+        self,
+        *,
+        page: int = 1,
+        size: int = 20,
+        threat_category: ThreatCategory | None = None,
+        status: ReportStatus | None = None,
+        municipality_id: UUID | None = None,
+        barangay_id: UUID | None = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
+    ) -> tuple[list[ScamReport], int]:
+        """Return reports with full filtering support."""
+
+        return await self.reports.list_reports(
+            page=page,
+            size=size,
+            threat_category=threat_category,
+            status=status,
+            municipality_id=municipality_id,
+            barangay_id=barangay_id,
+            start_date=start_date,
+            end_date=end_date,
+        )
+
     def _infer_category(
         self,
         report_type: str,
@@ -231,4 +273,3 @@ class ReportService:
         if "market" in normalized or "seller" in normalized:
             return ThreatCategory.marketplace_scam
         return ThreatCategory.other
-

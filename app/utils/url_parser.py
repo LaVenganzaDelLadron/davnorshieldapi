@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ipaddress
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 TRACKING_PARAMETERS = {
@@ -23,28 +24,33 @@ TRACKING_PARAMETERS = {
 def normalize_url(url: str) -> str:
     """Normalize a URL to make comparisons more stable."""
 
-    parsed = urlparse(url.strip())
-    scheme = parsed.scheme.lower()
+    raw = url.strip()
+    parsed = urlparse(raw if "://" in raw else f"https://{raw}")
+    scheme = (parsed.scheme or "https").lower()
     netloc = parsed.netloc.lower()
     path = parsed.path.rstrip("/") or "/"
-    query = remove_tracking_parameters(url)
-    query_string = urlparse(query).query
-    normalized = urlunparse((scheme, netloc, path, "", query_string, ""))
-    return normalized
+    filtered_query = [
+        (key, value)
+        for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+        if key not in TRACKING_PARAMETERS
+    ]
+    return urlunparse((scheme, netloc, path, "", urlencode(filtered_query), ""))
 
 
 def extract_domain(url: str) -> str:
     """Extract the registered host portion from a URL."""
 
-    parsed = urlparse(url.strip())
-    host = parsed.netloc.lower()
+    raw = url.strip()
+    parsed = urlparse(raw if "://" in raw else f"https://{raw}")
+    host = parsed.netloc.lower() or parsed.path.lower()
     return host.split(":")[0]
 
 
 def remove_tracking_parameters(url: str) -> str:
     """Remove common tracking query parameters from a URL."""
 
-    parsed = urlparse(url.strip())
+    raw = url.strip()
+    parsed = urlparse(raw if "://" in raw else f"https://{raw}")
     filtered_query = [
         (key, value)
         for key, value in parse_qsl(parsed.query, keep_blank_values=True)
@@ -66,8 +72,8 @@ def is_ip_address_url(url: str) -> bool:
     """Return True when the URL host is an IP address."""
 
     host = extract_domain(url)
-    parts = host.split(".")
-    if len(parts) == 4 and all(part.isdigit() for part in parts):
-        return all(0 <= int(part) <= 255 for part in parts)
-    return False
-
+    try:
+        ipaddress.ip_address(host)
+        return True
+    except ValueError:
+        return False

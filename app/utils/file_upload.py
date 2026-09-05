@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import imghdr
 from pathlib import Path
 from uuid import uuid4
 
@@ -17,6 +18,25 @@ def generate_unique_filename(original_filename: str) -> str:
     return f"{uuid4().hex}{suffix}"
 
 
+def _detect_image_extension(file_bytes: bytes) -> str | None:
+    """Detect a supported image type from raw bytes."""
+
+    if file_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
+        return ".png"
+    if file_bytes.startswith((b"\xff\xd8\xff",)):
+        return ".jpg"
+    if file_bytes[0:4] == b"RIFF" and file_bytes[8:12] == b"WEBP":
+        return ".webp"
+    detected = imghdr.what(None, h=file_bytes)
+    if detected == "jpeg":
+        return ".jpg"
+    if detected == "png":
+        return ".png"
+    if detected == "webp":
+        return ".webp"
+    return None
+
+
 def save_report_image(
     file_bytes: bytes,
     original_filename: str,
@@ -28,6 +48,20 @@ def save_report_image(
         raise ValueError("File exceeds the 10 MB limit.")
 
     filename = generate_unique_filename(original_filename)
+    suffix = Path(filename).suffix.lower()
+    detected_suffix = _detect_image_extension(file_bytes)
+    if detected_suffix is None:
+        raise ValueError("Unsupported image format.")
+    if detected_suffix not in ALLOWED_IMAGE_EXTENSIONS:
+        raise ValueError("Unsupported image format.")
+    allowed_suffixes = {suffix}
+    if suffix == ".jpeg":
+        allowed_suffixes.add(".jpg")
+    if suffix == ".jpg":
+        allowed_suffixes.add(".jpeg")
+    if detected_suffix not in allowed_suffixes:
+        # Preserve the requested extension but reject mismatched payloads.
+        raise ValueError("Image extension does not match file contents.")
     destination_dir = Path(upload_dir)
     destination_dir.mkdir(parents=True, exist_ok=True)
     destination_path = destination_dir / filename
@@ -43,4 +77,3 @@ def delete_image(image_path: str | Path) -> bool:
         path.unlink()
         return True
     return False
-

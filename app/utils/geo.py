@@ -4,6 +4,23 @@ from __future__ import annotations
 
 from app.utils.constants import DAVAO_DEL_NORTE_MUNICIPALITIES
 
+_MUNICIPALITY_ALIASES = {
+    "igacos": "island garden city of samal",
+    "island garden city of samal": "island garden city of samal",
+    "samal": "island garden city of samal",
+    "tagum": "tagum city",
+    "tagum city": "tagum city",
+    "braulio e dujali": "braulio e. dujali",
+    "braulio e. dujali": "braulio e. dujali",
+    "sto tomas": "santo tomas",
+    "santo tomas": "santo tomas",
+    "new corella": "new corella",
+    "kapalong": "kapalong",
+    "carmen": "carmen",
+    "san isidro": "san isidro",
+    "talaingod": "talaingod",
+}
+
 
 def normalize_barangay_name(name: str) -> str:
     """Normalize a barangay name for comparison."""
@@ -15,14 +32,7 @@ def normalize_municipality_name(name: str) -> str:
     """Normalize a municipality name for comparison."""
 
     normalized = " ".join(name.strip().lower().split())
-    aliases = {
-        "igacos": "igacos",
-        "island garden city of samal": "igacos",
-        "samal": "igacos",
-        "tagum": "tagum city",
-        "tagum city": "tagum city",
-    }
-    return aliases.get(normalized, normalized)
+    return _MUNICIPALITY_ALIASES.get(normalized, normalized)
 
 
 def get_municipality_from_barangay(barangay_name: str) -> str | None:
@@ -33,4 +43,3 @@ def get_municipality_from_barangay(barangay_name: str) -> str | None:
         if normalized_barangay in barangays:
             return municipality
     return None
-

@@ -37,7 +37,7 @@ class ScanResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     risk_score: float = Field(ge=0, le=100)
+    risk_level: str = Field(min_length=1, max_length=50)
     threat_category: ThreatCategory
     explanation: str
     recommendations: list[str]
-

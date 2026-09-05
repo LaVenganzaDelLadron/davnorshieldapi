@@ -1,2 +1,75 @@
 services:
-  
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cybershield-dn-api
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/cybershield_dn
+    volumes:
+      - ./:/app
+      - uploads_data:/app/uploads
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - cybershield-network
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: cybershield-dn-postgres
+    environment:
+      POSTGRES_DB: cybershield_dn
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cybershield_dn"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - cybershield-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: cybershield-dn-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@cybershielddn.local
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - cybershield-network
+
+  redis:
+    image: redis:latest
+    container_name: cybershield-dn-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - cybershield-network
+
+volumes:
+  postgres_data:
+  uploads_data:
+
+networks:
+  cybershield-network:
+    driver: bridge

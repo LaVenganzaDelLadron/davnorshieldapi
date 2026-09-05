@@ -1,39 +1,8 @@
-"""Shared constants and enums for backend services."""
+"""Shared constants for backend services."""
 
 from __future__ import annotations
 
-from enum import Enum
-
-
-class ThreatCategory(str, Enum):
-    """Threat categories used across scanners, reports, and recommendations."""
-
-    PHISHING = "phishing"
-    SMS_SCAM = "sms_scam"
-    QR_SCAM = "qr_scam"
-    MARKETPLACE_SCAM = "marketplace_scam"
-    JOB_SCAM = "job_scam"
-    INVESTMENT_SCAM = "investment_scam"
-    IDENTITY_THEFT = "identity_theft"
-    OTHER = "other"
-
-
-class AlertLevel(str, Enum):
-    """Alert severity levels."""
-
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    CRITICAL = "critical"
-
-
-class ReportStatus(str, Enum):
-    """Lifecycle states for scam reports."""
-
-    PENDING = "pending"
-    VERIFIED = "verified"
-    REJECTED = "rejected"
-    RESOLVED = "resolved"
+from app.constants import AlertLevel, ReportStatus, ThreatCategory, UserRole
 
 
 MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024
@@ -51,7 +20,7 @@ DAVAO_DEL_NORTE_MUNICIPALITIES: dict[str, list[str]] = {
         "magugpo pablacion",
         "visayan village",
     ],
-    "igacos": [
+    "island garden city of samal": [
         "san agustin",
         "peñaplata",
         "tagbaobo",
@@ -93,3 +62,14 @@ DAVAO_DEL_NORTE_MUNICIPALITIES: dict[str, list[str]] = {
     ],
 }
 
+THREAT_CATEGORIES = (
+    ThreatCategory.phishing,
+    ThreatCategory.sms_scam,
+    ThreatCategory.qr_scam,
+    ThreatCategory.marketplace_scam,
+    ThreatCategory.fake_job,
+    ThreatCategory.fake_investment,
+    ThreatCategory.identity_theft,
+    ThreatCategory.malware,
+    ThreatCategory.other,
+)

@@ -1,16 +1,73 @@
-# This is a sample Python script.
+"""FastAPI application entrypoint."""
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from __future__ import annotations
+
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.v1.router import api_router
+from app.config import settings
+from app.database.init_db import init_database
+from app.workers.scheduler import scheduler, shutdown_scheduler, start_scheduler
+
+openapi_tags = [
+    {"name": "Authentication", "description": "Register, log in, and manage sessions."},
+    {"name": "Users", "description": "Administrative user management."},
+    {"name": "Scam Reports", "description": "Citizen-submitted scam reports."},
+    {"name": "Scanner", "description": "Threat scanning endpoints."},
+    {"name": "Alerts", "description": "Broadcast and locality alerts."},
+    {"name": "Cyber Weather", "description": "Daily cyber risk forecasting."},
+    {"name": "Heatmap", "description": "Geospatial statistics for the frontend map."},
+    {"name": "Barangays", "description": "Barangay reference data."},
+    {"name": "Municipalities", "description": "Municipality reference data and summaries."},
+    {"name": "Dashboard", "description": "LGU dashboards and analytics."},
+    {"name": "Schools", "description": "School awareness and phishing statistics."},
+]
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize and shut down application infrastructure."""
+
+    await init_database()
+    start_scheduler()
+    yield
+    shutdown_scheduler()
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+app = FastAPI(
+    title="CyberShield DN API",
+    version="1.0.0",
+    description="AI-powered community cyber threat intelligence platform for Davao del Norte.",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_tags=openapi_tags,
+    lifespan=lifespan,
+)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(api_router)
+
+
+@app.get("/")
+async def root() -> dict[str, str]:
+    """Return a simple API status payload."""
+
+    return {"name": settings.APP_NAME, "version": settings.APP_VERSION, "status": "ok"}
+
+
+@app.get("/health")
+async def health() -> dict[str, str]:
+    """Return application health status."""
+
+    return {"status": "healthy"}
+
