@@ -11,6 +11,7 @@ AI-powered Community Cyber Threat Radar for Davao del Norte.
 ## Features
 
 - AI Scam Detection
+- RAG-first scanner investigations grounded in public documents and scam reports
 - Scam Heatmap
 - Cyber Weather
 - Outbreak Detection
@@ -91,6 +92,13 @@ Copy `.env.example` to `.env` and configure:
 - `FIREBASE_CREDENTIALS_PATH`
 - `ALLOWED_ORIGINS`
 - `UPLOAD_DIR`
+- `AI_MODEL`, `AI_API_KEY`, `GROQ_BASE_URL`, and `GROQ_TIMEOUT` for RAG scanner investigations
+
+Scanner endpoints investigate submitted URLs, SMS, QR payloads, and text with the
+configured chat model. Retrieval uses sanitized public documents and pending or
+verified scam-report signals; user identities, contact details, conversations,
+and audit data are excluded. If the database or model is unavailable, the
+existing deterministic detectors provide a bounded fallback response.
 
 ## License
 
