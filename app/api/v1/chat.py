@@ -1,8 +1,14 @@
 from __future__ import annotations
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 from app.database.session import get_db
+from app.dependencies import get_current_active_user_dependency
+from app.models.user import User
+from app.chat.schemas import ChatRequest, ChatResponse, ConversationCreate, ConversationRead, MessageRead, MessageCreate
+from app.chat.services import EmbeddingService, VectorStoreService, RAGChatService
+from app.chat.repository import ConversationRepository, MessageRepository, DocumentRepository
 from app.schemas.chat import ChatRequest, ChatResponse, MessageRead
 from app.services.chat_service import EmbeddingService, VectorStoreService, RAGChatService
 from app.repositories.chat_repository import ConversationRepository, MessageRepository, DocumentRepository
@@ -14,7 +20,11 @@ router = APIRouter(prefix="/chat", tags=["Chat"])
 
 
 @router.post("/", response_model=ChatResponse)
-async def chat_endpoint(payload: ChatRequest, db: AsyncSession = Depends(get_db)):
+async def chat_endpoint(
+    payload: ChatRequest,
+    current_user: Annotated[User, Depends(get_current_active_user_dependency)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
     """Chat endpoint with RAG retrieval + LLM call. Returns response with retrieved sources."""
     try:
         conv_repo = ConversationRepository(db)
@@ -57,7 +67,12 @@ async def chat_endpoint(payload: ChatRequest, db: AsyncSession = Depends(get_db)
 
 
 @router.get("/conversations/{conversation_id}/messages", response_model=list[MessageRead])
-async def list_messages(conversation_id: str, limit: int = 100, db: AsyncSession = Depends(get_db)):
+async def list_messages(
+    conversation_id: str,
+    current_user: Annotated[User, Depends(get_current_active_user_dependency)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    limit: int = 100,
+):
     """List messages for a conversation."""
     try:
         # Convert string UUID to UUID object
@@ -73,7 +88,12 @@ async def list_messages(conversation_id: str, limit: int = 100, db: AsyncSession
 
 
 @router.post("/documents/upload")
-async def upload_document(source: str | None = None, text: str = "", db: AsyncSession = Depends(get_db)):
+async def upload_document(
+    current_user: Annotated[User, Depends(get_current_active_user_dependency)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    source: str | None = None,
+    text: str = "",
+):
     """Upload and index a document."""
     try:
         if not text.strip():
