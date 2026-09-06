@@ -3,9 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 from app.database.session import get_db
-from app.chat.schemas import ChatRequest, ChatResponse, ConversationCreate, ConversationRead, MessageRead, MessageCreate
-from app.chat.services import EmbeddingService, VectorStoreService, RAGChatService
-from app.chat.repository import ConversationRepository, MessageRepository, DocumentRepository
+from app.schemas.chat import ChatRequest, ChatResponse, MessageRead
+from app.services.chat_service import EmbeddingService, VectorStoreService, RAGChatService
+from app.repositories.chat_repository import ConversationRepository, MessageRepository, DocumentRepository
 from uuid import UUID
 
 logger = logging.getLogger(__name__)
