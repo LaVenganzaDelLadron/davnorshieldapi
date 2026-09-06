@@ -5,6 +5,7 @@ import httpx
 import json
 import logging
 from app.config import settings
+from app.services.rag_policy import sanitize_for_rag, validate_public_query
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +83,8 @@ class RAGChatService:
     async def chat(self, conversation_id: UUID | None, prompt: str, top_k: int = 5, temperature: float = 0.0):
         """Execute a chat query with RAG retrieval and LLM completion."""
         try:
+            validate_public_query(prompt)
+            prompt = sanitize_for_rag(prompt)
             # 1. Embed the prompt (currently placeholder)
             logger.debug(f"Embedding prompt for conversation {conversation_id}")
             vectors = await self.embedding_service.embed([prompt])

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional
 from uuid import UUID
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 
 class MessageCreate(BaseModel):
@@ -20,7 +20,11 @@ class MessageRead(BaseModel):
     role: str
     content: str
     # Internal name is meta_data, but serialize/deserialize using 'metadata' in JSON
-    meta_data: Optional[dict] = Field(default=None, validation_alias="metadata", serialization_alias="metadata")
+    meta_data: Optional[dict] = Field(
+        default=None,
+        validation_alias=AliasChoices("meta_data", "metadata"),
+        serialization_alias="metadata",
+    )
     created_at: Optional[str]
 
 
