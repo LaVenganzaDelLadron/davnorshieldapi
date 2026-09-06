@@ -1,12 +1,7 @@
-"""Municipality model."""
-
 from __future__ import annotations
-
 from typing import TYPE_CHECKING
-
 from sqlalchemy import Boolean, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.database.base import Base, UUIDMixin
 
 if TYPE_CHECKING:
@@ -19,8 +14,6 @@ if TYPE_CHECKING:
 
 
 class Municipality(UUIDMixin, Base):
-    """Political municipality or city in Davao del Norte."""
-
     __tablename__ = "municipalities"
 
     municipality_name: Mapped[str] = mapped_column(

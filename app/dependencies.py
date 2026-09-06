@@ -1,14 +1,9 @@
-"""Shared FastAPI dependencies."""
-
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Annotated
 from uuid import UUID
-
 from fastapi import Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.auth import get_current_active_user, get_current_admin, get_current_user
 from app.database.session import get_db
 from app.models.barangay import Barangay

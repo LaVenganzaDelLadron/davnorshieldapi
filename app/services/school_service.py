@@ -1,12 +1,7 @@
-"""School analytics service."""
-
 from __future__ import annotations
-
 from uuid import UUID
-
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models.school import School
 from app.repositories.report_repository import ReportRepository
 from app.repositories.school_repository import SchoolRepository

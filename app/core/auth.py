@@ -1,16 +1,11 @@
-"""Authentication dependencies for FastAPI endpoints."""
-
 from __future__ import annotations
-
 from typing import Annotated
 from uuid import UUID
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.config import settings
 from app.core.security import decode_access_token
 from app.database.session import get_db

@@ -1,15 +1,10 @@
-"""Scam report business logic."""
-
 from __future__ import annotations
-
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from uuid import UUID
-
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.config import settings
 from app.models.enums import ReportStatus, ThreatCategory
 from app.models.scam_report import ScamReport

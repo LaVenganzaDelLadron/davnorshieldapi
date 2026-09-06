@@ -1,12 +1,7 @@
-"""Audit log repository."""
-
 from __future__ import annotations
-
 from collections.abc import Mapping
 from uuid import UUID
-
 from sqlalchemy import select
-
 from app.models.audit_log import AuditLog
 from app.repositories.base import RepositoryBase
 

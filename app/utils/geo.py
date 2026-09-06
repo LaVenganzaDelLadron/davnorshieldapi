@@ -1,7 +1,4 @@
-"""Geographic normalization helpers for Davao del Norte."""
-
 from __future__ import annotations
-
 from app.utils.constants import DAVAO_DEL_NORTE_MUNICIPALITIES
 
 _MUNICIPALITY_ALIASES = {

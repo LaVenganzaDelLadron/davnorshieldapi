@@ -1,11 +1,6 @@
-"""Barangay repository."""
-
 from __future__ import annotations
-
 from uuid import UUID
-
 from sqlalchemy import select
-
 from app.models.barangay import Barangay
 from app.repositories.base import RepositoryBase
 

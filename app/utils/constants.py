@@ -1,7 +1,4 @@
-"""Shared constants for backend services."""
-
 from __future__ import annotations
-
 from app.constants import AlertLevel, ReportStatus, ThreatCategory, UserRole
 
 

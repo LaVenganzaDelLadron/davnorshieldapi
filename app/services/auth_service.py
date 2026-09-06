@@ -1,13 +1,8 @@
-"""Authentication service layer."""
-
 from __future__ import annotations
-
 from dataclasses import dataclass
 from uuid import UUID
-
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.config import settings
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User

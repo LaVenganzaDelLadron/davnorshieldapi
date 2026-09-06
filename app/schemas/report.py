@@ -1,18 +1,10 @@
-"""Scam report schemas."""
-
 from __future__ import annotations
-
 from datetime import datetime
 from uuid import UUID
-
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
-
 from app.models.enums import ReportStatus, ThreatCategory
 
-
 class ReportBase(BaseModel):
-    """Shared report fields."""
-
     model_config = ConfigDict(extra="forbid")
 
     user_id: UUID
@@ -35,8 +27,6 @@ class ReportCreate(ReportBase):
 
 
 class ReportUpdate(BaseModel):
-    """Payload for partially updating a scam report."""
-
     model_config = ConfigDict(extra="forbid")
 
     municipality_id: UUID | None = None
@@ -54,8 +44,6 @@ class ReportUpdate(BaseModel):
 
 
 class ReportResponse(BaseModel):
-    """API representation of a scam report."""
-
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID
@@ -76,8 +64,6 @@ class ReportResponse(BaseModel):
 
 
 class ReportScannerResponse(BaseModel):
-    """Summarized scan output for a report or file attachment."""
-
     model_config = ConfigDict(extra="forbid")
 
     report_id: UUID | None = None
@@ -85,4 +71,3 @@ class ReportScannerResponse(BaseModel):
     threat_category: ThreatCategory
     explanation: str
     recommendations: list[str]
-

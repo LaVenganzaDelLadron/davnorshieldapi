@@ -1,7 +1,4 @@
-"""Outbreak detection worker."""
-
 from __future__ import annotations
-
 from app.constants import AlertLevel
 from app.database.session import AsyncSessionLocal
 from app.repositories.barangay_repository import BarangayRepository

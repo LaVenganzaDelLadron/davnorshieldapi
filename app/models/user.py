@@ -1,13 +1,8 @@
-"""User model."""
-
 from __future__ import annotations
-
 from typing import TYPE_CHECKING
 from uuid import UUID
-
 from sqlalchemy import Boolean, ForeignKey, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.database.base import Base, TimestampMixin, UUIDMixin
 from app.models.enums import USER_ROLE_ENUM, UserRole
 
@@ -20,8 +15,6 @@ if TYPE_CHECKING:
 
 
 class User(UUIDMixin, TimestampMixin, Base):
-    """Application account with RBAC metadata."""
-
     __tablename__ = "users"
 
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)

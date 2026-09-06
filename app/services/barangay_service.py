@@ -1,14 +1,9 @@
-"""Barangay service."""
-
 from __future__ import annotations
-
 from uuid import UUID
-
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models.barangay import Barangay
 from app.models.alert import Alert
 from app.models.scam_report import ScamReport

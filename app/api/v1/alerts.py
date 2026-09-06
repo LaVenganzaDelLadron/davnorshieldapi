@@ -1,14 +1,9 @@
-"""Alert routes."""
-
 from __future__ import annotations
-
 from typing import Annotated, Any
 from uuid import UUID
-
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.constants import AlertLevel
 from app.core.permissions import require_role
 from app.dependencies import get_db, get_pagination

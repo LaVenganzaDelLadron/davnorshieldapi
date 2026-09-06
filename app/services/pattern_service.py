@@ -1,14 +1,9 @@
-"""Threat pattern analysis service."""
-
 from __future__ import annotations
-
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
-
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models.enums import ThreatCategory
 from app.models.scam_report import ScamReport
 from app.models.threat_pattern import ThreatPattern

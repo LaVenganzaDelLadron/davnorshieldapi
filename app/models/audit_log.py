@@ -1,23 +1,15 @@
-"""Audit log model."""
-
 from __future__ import annotations
-
 from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
-
 from sqlalchemy import DateTime, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.database.base import Base, UUIDMixin
 
 if TYPE_CHECKING:
     from app.models.user import User
 
-
 class AuditLog(UUIDMixin, Base):
-    """Immutable security and action audit trail."""
-
     __tablename__ = "audit_logs"
 
     user_id: Mapped[UUID] = mapped_column(

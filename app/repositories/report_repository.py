@@ -1,13 +1,8 @@
-"""Scam report repository."""
-
 from __future__ import annotations
-
 from collections.abc import Mapping
 from datetime import UTC, date, datetime, time, timedelta
 from uuid import UUID
-
 from sqlalchemy import and_, func, or_, select
-
 from app.models.enums import ReportStatus, ThreatCategory
 from app.models.scam_report import ScamReport
 from app.repositories.base import RepositoryBase

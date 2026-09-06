@@ -1,14 +1,9 @@
-"""Notification model."""
-
 from __future__ import annotations
-
 from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
-
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.database.base import Base, UUIDMixin
 
 if TYPE_CHECKING:
@@ -16,8 +11,6 @@ if TYPE_CHECKING:
 
 
 class Notification(UUIDMixin, Base):
-    """Per-user notification."""
-
     __tablename__ = "notifications"
 
     user_id: Mapped[UUID] = mapped_column(

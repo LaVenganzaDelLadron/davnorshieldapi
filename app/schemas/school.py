@@ -1,16 +1,10 @@
-"""School schemas."""
-
 from __future__ import annotations
-
 from datetime import datetime
 from uuid import UUID
-
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class SchoolStatsResponse(BaseModel):
-    """API response for school cyber-awareness stats."""
-
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID

@@ -1,12 +1,7 @@
-"""Heatmap routes."""
-
 from __future__ import annotations
-
 from typing import Annotated
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.dependencies import get_db
 from app.services.heatmap_service import HeatmapService
 

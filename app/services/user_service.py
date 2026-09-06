@@ -1,13 +1,8 @@
-"""User management service."""
-
 from __future__ import annotations
-
 from typing import Any
 from uuid import UUID
-
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.security import hash_password
 from app.models.enums import UserRole
 from app.models.user import User

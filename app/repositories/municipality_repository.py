@@ -1,11 +1,6 @@
-"""Municipality repository."""
-
 from __future__ import annotations
-
 from uuid import UUID
-
 from sqlalchemy import select
-
 from app.models.municipality import Municipality
 from app.repositories.base import RepositoryBase
 

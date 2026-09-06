@@ -1,12 +1,7 @@
-"""School repository."""
-
 from __future__ import annotations
-
 from collections.abc import Mapping
 from uuid import UUID
-
 from sqlalchemy import select
-
 from app.models.school import School
 from app.repositories.base import RepositoryBase
 

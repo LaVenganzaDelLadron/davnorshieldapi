@@ -1,12 +1,7 @@
-"""Notification repository."""
-
 from __future__ import annotations
-
 from collections.abc import Mapping
 from uuid import UUID
-
 from sqlalchemy import func, select
-
 from app.models.notification import Notification
 from app.repositories.base import RepositoryBase
 

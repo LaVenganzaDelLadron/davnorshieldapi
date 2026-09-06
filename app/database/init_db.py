@@ -1,14 +1,10 @@
-"""Create all database tables for the application."""
-
 from __future__ import annotations
-
 import asyncio
 import logging
 import socket
 import sys
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
-
 import asyncpg
 from sqlalchemy.exc import DBAPIError, OperationalError
 
@@ -19,17 +15,16 @@ from app.database.base import Base
 from app.database.session import engine
 from app.config import settings
 
-# Import every model module so SQLAlchemy registers the mappings.
-from app.models import alert as _alert  # noqa: F401
-from app.models import audit_log as _audit_log  # noqa: F401
-from app.models import barangay as _barangay  # noqa: F401
-from app.models import cyber_weather as _cyber_weather  # noqa: F401
-from app.models import municipality as _municipality  # noqa: F401
-from app.models import notification as _notification  # noqa: F401
-from app.models import scam_report as _scam_report  # noqa: F401
-from app.models import school as _school  # noqa: F401
-from app.models import threat_pattern as _threat_pattern  # noqa: F401
-from app.models import user as _user  # noqa: F401
+from app.models import alert as _alert 
+from app.models import audit_log as _audit_log  
+from app.models import barangay as _barangay  
+from app.models import cyber_weather as _cyber_weather  
+from app.models import municipality as _municipality  
+from app.models import notification as _notification  
+from app.models import scam_report as _scam_report 
+from app.models import school as _school  
+from app.models import threat_pattern as _threat_pattern  
+from app.models import user as _user  
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +35,6 @@ class DatabaseInitializationError(RuntimeError):
 
 
 def _mask_database_url(database_url: str) -> str:
-    """Return a connection URL that is safe to include in startup logs."""
 
     parsed = urlsplit(database_url)
     username = parsed.username or ""
@@ -52,10 +46,7 @@ def _mask_database_url(database_url: str) -> str:
         (parsed.scheme, f"{credentials}{host}{port}", parsed.path, parsed.query, "")
     )
 
-
 def _find_exception(error: BaseException, exception_type: type[BaseException]) -> bool:
-    """Search wrapped SQLAlchemy/asyncpg exceptions without losing the cause."""
-
     seen: set[int] = set()
     current: BaseException | None = error
     while current is not None and id(current) not in seen:
@@ -67,8 +58,6 @@ def _find_exception(error: BaseException, exception_type: type[BaseException]) -
 
 
 def _print_database_diagnostics() -> bool:
-    """Print connection details and verify DNS before opening a database socket."""
-
     logger.info(
         "Connecting to PostgreSQL host=%s port=%s database=%s",
         settings.DATABASE_HOST,
@@ -96,13 +85,9 @@ def _print_database_diagnostics() -> bool:
 
 
 async def init_database() -> None:
-    """Create the full schema in the configured PostgreSQL database."""
-
     if not _print_database_diagnostics():
         await engine.dispose()
-        raise DatabaseInitializationError(
-            "Database is unreachable because its hostname cannot be resolved."
-        )
+        raise DatabaseInitializationError("Database is unreachable because its hostname cannot be resolved.")
 
     try:
         async with engine.begin() as connection:

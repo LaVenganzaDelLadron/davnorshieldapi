@@ -1,5 +1,3 @@
-"""Analytics computation worker."""
-
 from __future__ import annotations
 
 from app.database.session import AsyncSessionLocal

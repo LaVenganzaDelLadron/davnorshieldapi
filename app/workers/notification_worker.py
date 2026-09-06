@@ -1,7 +1,4 @@
-"""Notification delivery worker."""
-
 from __future__ import annotations
-
 from app.core.firebase import FirebaseService
 from app.database.session import AsyncSessionLocal
 from app.repositories.notification_repository import NotificationRepository

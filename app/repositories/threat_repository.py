@@ -1,14 +1,9 @@
-"""Threat pattern repository."""
-
 from __future__ import annotations
-
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
-
 from sqlalchemy import func, or_, select, update
-
 from app.models.enums import ThreatCategory
 from app.models.threat_pattern import ThreatPattern
 from app.repositories.base import RepositoryBase

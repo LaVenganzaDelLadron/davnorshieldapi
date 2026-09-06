@@ -1,13 +1,8 @@
-"""Outbreak detection service."""
-
 from __future__ import annotations
-
 from dataclasses import dataclass
 from datetime import timedelta
 from uuid import UUID
-
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.repositories.report_repository import ReportRepository
 from app.utils.constants import DEFAULT_OUTBREAK_THRESHOLD, OUTBREAK_WINDOW_HOURS
 from app.utils.date_utils import utc_now

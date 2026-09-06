@@ -1,13 +1,8 @@
-"""Cyber weather repository."""
-
 from __future__ import annotations
-
 from collections.abc import Mapping
 from datetime import date
 from uuid import UUID
-
 from sqlalchemy import select
-
 from app.models.cyber_weather import CyberWeather
 from app.repositories.base import RepositoryBase
 from app.utils.date_utils import today_date

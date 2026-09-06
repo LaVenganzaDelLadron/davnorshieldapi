@@ -1,13 +1,8 @@
-"""Authentication routes."""
-
 from __future__ import annotations
-
 from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.dependencies import get_current_active_user_dependency, get_db
 from app.schemas.auth import LoginRequest, TokenResponse
 from app.schemas.user import UserCreate, UserPublic, UserResponse

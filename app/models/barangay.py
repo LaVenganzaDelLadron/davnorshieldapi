@@ -1,13 +1,8 @@
-"""Barangay model."""
-
 from __future__ import annotations
-
 from typing import TYPE_CHECKING
 from uuid import UUID
-
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.database.base import Base, UUIDMixin
 
 if TYPE_CHECKING:
@@ -18,8 +13,6 @@ if TYPE_CHECKING:
 
 
 class Barangay(UUIDMixin, Base):
-    """Barangay within a municipality."""
-
     __tablename__ = "barangays"
     __table_args__ = (
         UniqueConstraint("barangay_name", "municipality_id", name="uq_barangays_name_municipality"),

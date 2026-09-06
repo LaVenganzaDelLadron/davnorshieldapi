@@ -1,9 +1,5 @@
-"""Scanner request and response schemas."""
-
 from __future__ import annotations
-
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
-
 from app.models.enums import ThreatCategory
 
 

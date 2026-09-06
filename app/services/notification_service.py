@@ -1,12 +1,7 @@
-"""Notification service layer."""
-
 from __future__ import annotations
-
 from dataclasses import dataclass
 from uuid import UUID
-
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.firebase import FirebaseService
 from app.models.enums import UserRole
 from app.models.notification import Notification

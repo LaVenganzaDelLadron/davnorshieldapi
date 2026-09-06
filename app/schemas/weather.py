@@ -1,16 +1,10 @@
-"""Cyber weather schemas."""
-
 from __future__ import annotations
-
 from datetime import date
 from uuid import UUID
-
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class CyberWeatherResponse(BaseModel):
-    """API response for a cyber weather snapshot."""
-
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID

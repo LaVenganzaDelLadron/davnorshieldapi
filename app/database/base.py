@@ -1,15 +1,10 @@
-"""SQLAlchemy declarative base and shared ORM mixins."""
-
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any
+from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, MetaData, func
+from sqlalchemy import DateTime, MetaData, Uuid, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import Uuid
-
 
 NAMING_CONVENTION: dict[str, str] = {
     "ix": "ix_%(column_0_label)s",
@@ -21,13 +16,11 @@ NAMING_CONVENTION: dict[str, str] = {
 
 
 class Base(DeclarativeBase):
-    """Base class for all SQLAlchemy models."""
-
     metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
 
 class UUIDMixin:
-    """Provide a UUID primary key column."""
+    """Provides a UUID primary key column."""
 
     id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
@@ -38,17 +31,15 @@ class UUIDMixin:
 
 
 class TimestampMixin:
-    """Provide created and updated timestamps."""
-
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),
     )
+
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),
     )
-

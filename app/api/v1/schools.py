@@ -1,14 +1,9 @@
-"""School routes."""
-
 from __future__ import annotations
-
 from typing import Annotated, Any
 from uuid import UUID
-
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.permissions import require_role
 from app.dependencies import get_db, get_pagination
 from app.models.enums import UserRole

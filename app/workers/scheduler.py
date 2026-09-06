@@ -1,9 +1,5 @@
-"""Central APScheduler configuration."""
-
 from __future__ import annotations
-
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
 from app.config import settings
 from app.workers.analytics_worker import run_analytics_job
 from app.workers.cleanup_worker import run_cleanup_job

@@ -1,9 +1,5 @@
-"""Scanner routes."""
-
 from __future__ import annotations
-
 from fastapi import APIRouter, status
-
 from app.schemas.scanner import QRScanRequest, SMSScanRequest, ScanResponse, URLScanRequest
 from app.services.scanner_service import ScannerService
 

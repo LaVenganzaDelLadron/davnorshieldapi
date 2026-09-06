@@ -1,13 +1,8 @@
-"""Alert management service."""
-
 from __future__ import annotations
-
 from datetime import date, datetime, time, timedelta
 from uuid import UUID
-
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models.alert import Alert
 from app.models.enums import AlertLevel
 from app.repositories.alert_repository import AlertRepository

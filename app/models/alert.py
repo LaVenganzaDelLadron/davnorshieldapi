@@ -1,14 +1,10 @@
-"""Alert model."""
-
+""""Alert models."""
 from __future__ import annotations
-
 from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
-
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.database.base import Base, UUIDMixin
 from app.models.enums import ALERT_LEVEL_ENUM, AlertLevel
 
@@ -17,10 +13,7 @@ if TYPE_CHECKING:
     from app.models.municipality import Municipality
     from app.models.threat_pattern import ThreatPattern
 
-
 class Alert(UUIDMixin, Base):
-    """Alert issued to a locality based on threat intelligence."""
-
     __tablename__ = "alerts"
 
     threat_pattern_id: Mapped[UUID] = mapped_column(

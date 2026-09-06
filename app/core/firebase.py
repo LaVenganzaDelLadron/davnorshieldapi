@@ -1,10 +1,6 @@
-"""Firebase notification helpers."""
-
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Any
-
 from app.config import settings
 
 try:  # pragma: no cover - optional dependency

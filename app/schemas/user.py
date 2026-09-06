@@ -1,18 +1,11 @@
-"""User schemas."""
-
 from __future__ import annotations
-
 from datetime import datetime
 from uuid import UUID
-
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-
 from app.models.enums import UserRole
 
 
 class UserBase(BaseModel):
-    """Shared user fields."""
-
     model_config = ConfigDict(extra="forbid")
 
     full_name: str = Field(min_length=1, max_length=255)
@@ -31,8 +24,6 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
-    """Payload for partially updating a user."""
-
     model_config = ConfigDict(extra="forbid")
 
     full_name: str | None = Field(default=None, min_length=1, max_length=255)
@@ -46,8 +37,6 @@ class UserUpdate(BaseModel):
 
 
 class UserResponse(BaseModel):
-    """API representation of a user."""
-
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID
@@ -63,8 +52,6 @@ class UserResponse(BaseModel):
 
 
 class UserPublic(BaseModel):
-    """Public user representation without sensitive fields."""
-
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID

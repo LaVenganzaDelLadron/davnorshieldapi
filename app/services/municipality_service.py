@@ -1,13 +1,8 @@
-"""Municipality service."""
-
 from __future__ import annotations
-
 from uuid import UUID
-
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models.municipality import Municipality
 from app.repositories.municipality_repository import MunicipalityRepository
 from app.repositories.report_repository import ReportRepository

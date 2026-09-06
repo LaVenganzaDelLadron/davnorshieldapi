@@ -1,9 +1,5 @@
-"""Versioned API router registry."""
-
 from __future__ import annotations
-
 from fastapi import APIRouter
-
 from app.config import settings
 from app.api.v1.alerts import router as alerts_router
 from app.api.v1.auth import router as auth_router

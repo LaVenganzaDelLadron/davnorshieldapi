@@ -1,9 +1,5 @@
-"""Threat scanner service layer."""
-
 from __future__ import annotations
-
 from collections.abc import Mapping
-
 from app.ai.phishing_detector import detect_phishing
 from app.ai.qr_detector import detect_qr_threat
 from app.ai.sms_detector import detect_sms_scam

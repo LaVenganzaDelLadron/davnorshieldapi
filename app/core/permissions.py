@@ -1,12 +1,7 @@
-"""Role-based access control helpers."""
-
 from __future__ import annotations
-
 from collections.abc import Awaitable, Callable
 from typing import Annotated
-
 from fastapi import Depends, HTTPException, status
-
 from app.core.auth import get_current_active_user
 from app.models.enums import UserRole
 from app.models.user import User

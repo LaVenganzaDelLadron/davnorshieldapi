@@ -1,10 +1,6 @@
-"""Data cleanup worker."""
-
 from __future__ import annotations
-
 from datetime import timedelta
 from pathlib import Path
-
 from app.config import settings
 from app.database.session import AsyncSessionLocal
 from app.models.enums import ReportStatus

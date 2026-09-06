@@ -1,11 +1,6 @@
-"""Heatmap aggregation service."""
-
 from __future__ import annotations
-
 from collections import Counter
-
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.repositories.barangay_repository import BarangayRepository
 from app.repositories.municipality_repository import MunicipalityRepository
 from app.repositories.report_repository import ReportRepository

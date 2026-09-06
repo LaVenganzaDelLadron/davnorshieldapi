@@ -1,13 +1,8 @@
-"""Cyber weather routes."""
-
 from __future__ import annotations
-
 from typing import Annotated, Any
 from uuid import UUID
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.dependencies import get_db, get_pagination
 from app.schemas.weather import CyberWeatherResponse
 from app.services.weather_service import WeatherService

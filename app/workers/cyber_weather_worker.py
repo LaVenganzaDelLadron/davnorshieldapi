@@ -1,7 +1,4 @@
-"""Daily cyber weather generation worker."""
-
 from __future__ import annotations
-
 from app.database.session import AsyncSessionLocal
 from app.repositories.municipality_repository import MunicipalityRepository
 from app.services.weather_service import WeatherService

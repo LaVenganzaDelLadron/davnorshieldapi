@@ -1,15 +1,10 @@
-"""Scam report routes."""
-
 from __future__ import annotations
-
 from datetime import date
 from typing import Annotated, Any
 from uuid import UUID
-
 from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.dependencies import get_current_active_user_dependency, get_db, get_pagination
 from app.models.enums import ReportStatus, ThreatCategory
 from app.models.user import User

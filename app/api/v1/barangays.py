@@ -1,13 +1,8 @@
-"""Barangay reference-data routes."""
-
 from __future__ import annotations
-
 from typing import Annotated
 from uuid import UUID
-
 from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.permissions import require_role
 from app.dependencies import get_db
 from app.models.enums import UserRole

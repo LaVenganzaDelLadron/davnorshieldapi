@@ -1,23 +1,15 @@
-"""Threat pattern model."""
-
 from __future__ import annotations
-
 from datetime import datetime
 from typing import TYPE_CHECKING
-
 from sqlalchemy import DateTime, Float, Integer, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.database.base import Base, UUIDMixin
 from app.models.enums import THREAT_CATEGORY_ENUM, ThreatCategory
 
 if TYPE_CHECKING:
     from app.models.alert import Alert
 
-
 class ThreatPattern(UUIDMixin, Base):
-    """Detected malicious pattern aggregated from many reports."""
-
     __tablename__ = "threat_patterns"
 
     pattern_name: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)

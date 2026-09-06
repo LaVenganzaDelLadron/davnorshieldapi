@@ -1,13 +1,8 @@
-"""Password hashing and JWT helpers."""
-
 from __future__ import annotations
-
 from datetime import UTC, datetime, timedelta
 from typing import Any
-
 import bcrypt
 from jose import JWTError, jwt
-
 from app.config import settings
 from app.models.enums import UserRole
 

@@ -1,13 +1,8 @@
-"""User administration routes."""
-
 from __future__ import annotations
-
 from typing import Annotated, Any
 from uuid import UUID
-
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.dependencies import get_current_admin_dependency, get_db, get_pagination
 from app.schemas.user import UserResponse, UserUpdate
 from app.services.user_service import UserService

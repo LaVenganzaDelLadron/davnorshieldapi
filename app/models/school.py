@@ -1,23 +1,15 @@
-"""School model."""
-
 from __future__ import annotations
-
 from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
-
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.database.base import Base, UUIDMixin
 
 if TYPE_CHECKING:
     from app.models.municipality import Municipality
 
-
 class School(UUIDMixin, Base):
-    """School awareness tracking record."""
-
     __tablename__ = "schools"
 
     municipality_id: Mapped[UUID] = mapped_column(

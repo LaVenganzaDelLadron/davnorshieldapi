@@ -1,14 +1,10 @@
-"""Alert repository."""
-
 from __future__ import annotations
-
 from collections.abc import Mapping
 from uuid import UUID
-
 from sqlalchemy import select
-
 from app.models.alert import Alert
 from app.repositories.base import RepositoryBase
+
 
 
 class AlertRepository(RepositoryBase):
@@ -106,3 +102,14 @@ class AlertRepository(RepositoryBase):
         )
         count_stmt = self._count_statement(Alert, Alert.municipality_id == municipality_id)
         return await self._paginate(stmt, count_stmt, page=page, size=size)
+
+
+
+
+
+
+
+
+
+
+

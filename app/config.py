@@ -1,53 +1,42 @@
-"""Centralized application configuration using os.getenv()."""
-
+""" Centralized application configuration using os.getenv() """
 from __future__ import annotations
-
 import json
 import os
 from functools import lru_cache
 from urllib.parse import quote, urlsplit, urlunsplit
-
 from dotenv import load_dotenv
 
-# Load .env into environment variables
 load_dotenv()
 
-
-class Settings:
+class Settins:
     def __init__(self):
-        # =========================
         # Application
-        # =========================
-        self.APP_NAME = os.getenv("APP_NAME", "DavnorShield")
-        self.APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
-        self.API_V1_PREFIX = os.getenv("API_V1_PREFIX", "/api/v1")
-        self.DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-        self.ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
-        self.PROJECT_NAME = os.getenv("PROJECT_NAME", "DavnorShield")
-        self.TIMEZONE = os.getenv("TIMEZONE", "Asia/Manila")
+        self.APP_NAME = os.getenv("APP_NAME")
+        self.APP_VERSION = os.getenv("APP_VERSION")
+        self.API_V1_PREFIX = os.getenv("API_V1_PREFIX")
+        self.DEBUG = os.getenv("DEBUG").lower() == "true"
+        self.ENVIRONMENT = os.getenv("ENVIRONMENT")
+        self.PROJECT_NAME = os.getenv("PROJECT_NAME")
+        self.TIMEZONE = os.getenv("TIMEZONE")
 
-        # =========================
-        # JWT
-        # =========================
-        self.SECRET_KEY = os.getenv("SECRET_KEY", "")
-        self.JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+        #JWT
+        self.SECRET_KEY = os.getenv("SECRET_KEY")
+        self.JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
         self.ACCESS_TOKEN_EXPIRE_MINUTES = self._get_int(
             "ACCESS_TOKEN_EXPIRE_MINUTES", 30
-        )
+            )
         self.REFRESH_TOKEN_EXPIRE_DAYS = self._get_int(
             "REFRESH_TOKEN_EXPIRE_DAYS", 7
-        )
+            )
 
-        # =========================
-        # PostgreSQL
-        # =========================
-        self.DATABASE_HOST = os.getenv("DATABASE_HOST", "localhost").strip()
-        self.DATABASE_PORT = self._get_int("DATABASE_PORT", 5432)
-        self.DATABASE_USER = os.getenv("DATABASE_USER", "postgres").strip()
-        self.DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD", "")
-        self.DATABASE_NAME = os.getenv("DATABASE_NAME", "postgres").strip()
+        #PostgreSQL
+        self.DATABASE_HOST = os.getenv("DATABASE_HOST").strip()
+        self.DATABASE_PORT =self._get_int("DATABASE_PORT", 5432)
+        self.DATABASE_USER = os.getenv("DATABASE_USER").strip()
+        self.DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
+        self.DATABASE_NAME = os.getenv("DATABASE_NAME").strip()
 
-        configured_url = os.getenv("DATABASE_URL", "").strip()
+        configured_url = os.getenv("DATABASE_URL").strip()
         self.DATABASE_URL = self._normalize_database_url(configured_url)
         if not self.DATABASE_URL:
             self.DATABASE_URL = self._build_database_url()
@@ -59,9 +48,7 @@ class Settings:
         self.DATABASE_USER = parsed_database_url.username or self.DATABASE_USER
         self.DATABASE_NAME = parsed_database_url.path.lstrip("/") or self.DATABASE_NAME
 
-        # =========================
         # Firebase
-        # =========================
         self.FIREBASE_PROJECT_ID = os.getenv("PROJECT_ID", "")
         self.FIREBASE_CREDENTIALS_PATH = os.getenv("FIREBASE_CREDENTIALS_PATH")
         self.FIREBASE_API_KEY = os.getenv("API_KEY", "")
@@ -71,9 +58,7 @@ class Settings:
         self.FIREBASE_APP_ID = os.getenv("APP_ID", "")
         self.FIREBASE_MEASUREMENT_ID = os.getenv("MEASUREMENT_ID", "")
 
-        # =========================
         # AI
-        # =========================
         self.AI_PROVIDER = os.getenv("AI_PROVIDER", "groq")
         self.AI_MODEL = os.getenv("GROQ_MODEL", "")
         self.AI_API_KEY = os.getenv(
@@ -84,16 +69,13 @@ class Settings:
         keys = os.getenv("GROQ_API_KEYS", "")
         self.GROQ_API_KEYS = tuple(k.strip() for k in keys.split(",") if k.strip())
 
-        self.GROQ_API_KEY1 = os.getenv("GROQ_API_KEY1", "")
-        self.GROQ_API_KEY2 = os.getenv("GROQ_API_KEY2", "")
-        self.GROQ_API_KEY3 = os.getenv("GROQ_API_KEY3", "")
-        self.GROQ_API_KEY4 = os.getenv("GROQ_API_KEY4", "")
-        self.GROQ_API_KEY5 = os.getenv("GROQ_API_KEY5", "")
+        self.GROQ_API_KEY1 = os.getenv("GROQ_API_KEY1")
+        self.GROQ_API_KEY2 = os.getenv("GROQ_API_KEY2")
+        self.GROQ_API_KEY3 = os.getenv("GROQ_API_KEY3")
+        self.GROQ_API_KEY4 = os.getenv("GROQ_API_KEY4")
+        self.GROQ_API_KEY5 = os.getenv("GROQ_API_KEY5")
 
-        self.GROQ_BASE_URL = os.getenv(
-            "GROQ_BASE_URL",
-            "https://api.groq.com/openai/v1",
-        )
+        self.GROQ_BASE_URL = os.getenv("GROQ_BASE_URL")
 
         self.GROQ_TIMEOUT = self._get_int("GROQ_TIMEOUT", 120)
 
@@ -121,9 +103,7 @@ class Settings:
             "AI_SIMILARITY_THRESHOLD", 60.0
         )
 
-        # =========================
         # Scheduler
-        # =========================
         self.OUTBREAK_INTERVAL_MINUTES = self._get_int(
             "OUTBREAK_INTERVAL_MINUTES", 10
         )
@@ -143,15 +123,12 @@ class Settings:
             "ANALYTICS_INTERVAL_SECONDS", 3600
         )
 
-        # =========================
+
         # Uploads
-        # =========================
-        self.UPLOAD_DIRECTORY = os.getenv("UPLOAD_DIRECTORY", "uploads")
+        self.UPLOAD_DIRECTORY = os.getenv("UPLOAD_DIRECTORY")
         self.MAX_UPLOAD_SIZE_MB = self._get_int("MAX_UPLOAD_SIZE_MB", 10)
 
-        # =========================
         # CORS Origins
-        # =========================
         origins = os.getenv(
             "ALLOWED_ORIGINS",
             '["http://localhost:3000","http://127.0.0.1:3000","http://localhost:4200"]',
@@ -246,7 +223,9 @@ class Settings:
 
 @lru_cache
 def get_settings():
-    return Settings()
+    return Settins()
 
 
 settings = get_settings()
+
+

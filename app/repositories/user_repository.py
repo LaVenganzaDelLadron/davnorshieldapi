@@ -1,12 +1,7 @@
-"""User repository for PostgreSQL persistence."""
-
 from __future__ import annotations
-
 from collections.abc import Mapping
 from uuid import UUID
-
 from sqlalchemy import or_, select
-
 from app.models.enums import UserRole
 from app.models.user import User
 from app.repositories.base import RepositoryBase
