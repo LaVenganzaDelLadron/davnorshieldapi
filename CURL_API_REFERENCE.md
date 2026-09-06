@@ -532,3 +532,90 @@ be between 0 and 100 inclusive.
 - `401` missing, expired, or invalid bearer token; `403` inactive account or insufficient role.
 - `404` record not found; `422` invalid UUID, malformed body, missing required field, or invalid query parameter.
 - Add `-i` to any command to see response headers and status, or add `| jq` to pretty-print JSON when `jq` is installed.
+
+## Chat & RAG API
+
+These endpoints provide a lightweight AI chat interface backed by a RAG pipeline. They exist under the API v1 prefix (default: `/api/v1`). Replace `BASE_URL` and `TOKEN` with your deployment values.
+
+### POST /api/v1/chat/
+
+Start or continue a conversation and receive a model response with retrieved sources.
+
+Request JSON:
+
+{
+  "conversation_id": "<optional-uuid>",
+  "prompt": "How can I spot a phishing email?",
+  "top_k": 5,
+  "temperature": 0.0
+}
+
+Example curl:
+
+curl -X POST "${BASE_URL:-http://localhost:8000}/api/v1/chat/" \
+  -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"How can I spot a phishing email?","top_k":5}'
+
+Example response (200):
+
+{
+  "conversation_id": "11111111-2222-3333-4444-555555555555",
+  "message": "Common signs of phishing include unexpected links, misspelled domains, urgent action requests...",
+  "sources": [
+    {"id":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee","score":0.92,"snippet":"...from the official bank domain..."}
+  ]
+}
+
+---
+
+### GET /api/v1/chat/conversations/{conversation_id}/messages
+
+List messages for a conversation (paginated by `limit`).
+
+Example curl:
+
+curl -X GET "${BASE_URL:-http://localhost:8000}/api/v1/chat/conversations/<conversation_id>/messages?limit=100" \
+  -H "Authorization: Bearer ${TOKEN}"
+
+Example response:
+
+[
+  {"id":"...","role":"user","content":"How do I...","metadata":null,"created_at":"..."},
+  {"id":"...","role":"assistant","content":"...","metadata":null,"created_at":"..."}
+]
+
+---
+
+### POST /api/v1/chat/documents/upload
+
+Upload a document (text) to the RAG index. The server will chunk and index it (background tasks recommended).
+
+Request JSON:
+
+{
+  "source": "manual-upload",
+  "text": "Full document text here..."
+}
+
+Example curl:
+
+curl -X POST "${BASE_URL:-http://localhost:8000}/api/v1/chat/documents/upload" \
+  -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{"source":"manual-upload","text":"This is a short doc to index."}'
+
+Example response (201):
+
+{
+  "id": "22222222-3333-4444-5555-666666666666",
+  "chunk_count": 1
+}
+
+---
+
+Notes:
+- The chat endpoint performs: embed(prompt) -> retrieve top_k docs -> assemble prompt (system + retrieved + history) -> call LLM -> return message + source snippets.
+- Authentication and rate limits apply per existing API policies.
+- The public JSON key `metadata` is preserved in API responses even though the internal SQLAlchemy model uses `meta_data` to avoid reserved-name conflicts.
+
