@@ -14,6 +14,9 @@ class Conversation(UUIDMixin, TimestampMixin, Base):
 
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
     participants_count: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    owner_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=True
+    )
 
     messages: Mapped[list["Message"]] = relationship(
         "Message",
@@ -21,6 +24,7 @@ class Conversation(UUIDMixin, TimestampMixin, Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    owner: Mapped["User | None"] = relationship("User")
 
 
 class Message(UUIDMixin, TimestampMixin, Base):

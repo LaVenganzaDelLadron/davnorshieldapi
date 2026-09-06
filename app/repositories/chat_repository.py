@@ -13,14 +13,17 @@ class ConversationRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, title: str | None = None) -> Conversation:
-        conv = Conversation(title=title)
+    async def create(self, owner_id: UUID, title: str | None = None) -> Conversation:
+        conv = Conversation(title=title, owner_id=owner_id)
         self.session.add(conv)
         await self.session.flush()
         return conv
 
-    async def get(self, conversation_id: UUID) -> Conversation | None:
-        q = select(Conversation).where(Conversation.id == conversation_id)
+    async def get_for_user(self, conversation_id: UUID, owner_id: UUID) -> Conversation | None:
+        q = select(Conversation).where(
+            Conversation.id == conversation_id,
+            Conversation.owner_id == owner_id,
+        )
         result = await self.session.execute(q)
         return result.scalars().first()
 
@@ -36,8 +39,19 @@ class MessageRepository:
         await self.session.flush()
         return msg
 
-    async def list_for_conversation(self, conversation_id: UUID, limit: int = 100) -> List[Message]:
-        q = select(Message).where(Message.conversation_id == conversation_id).order_by(Message.created_at.asc()).limit(limit)
+    async def list_for_conversation(
+        self, conversation_id: UUID, owner_id: UUID, limit: int = 100
+    ) -> List[Message]:
+        q = (
+            select(Message)
+            .join(Message.conversation)
+            .where(
+                Message.conversation_id == conversation_id,
+                Conversation.owner_id == owner_id,
+            )
+            .order_by(Message.created_at.asc())
+            .limit(limit)
+        )
         result = await self.session.execute(q)
         return result.scalars().all()
 

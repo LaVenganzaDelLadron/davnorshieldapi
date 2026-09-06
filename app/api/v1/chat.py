@@ -5,13 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 from app.database.session import get_db
 from app.dependencies import get_current_active_user_dependency
+from app.core.permissions import require_role
+from app.models.enums import UserRole
 from app.models.user import User
-from app.chat.schemas import ChatRequest, ChatResponse, ConversationCreate, ConversationRead, MessageRead, MessageCreate
-from app.chat.services import EmbeddingService, VectorStoreService, RAGChatService
-from app.chat.repository import ConversationRepository, MessageRepository, DocumentRepository
 from app.schemas.chat import ChatRequest, ChatResponse, MessageRead
 from app.services.chat_service import EmbeddingService, VectorStoreService, RAGChatService
 from app.repositories.chat_repository import ConversationRepository, MessageRepository, DocumentRepository
+from app.services.rag_policy import OutOfScopeQueryError, sanitize_for_rag, validate_public_query
 from uuid import UUID
 
 logger = logging.getLogger(__name__)
@@ -27,20 +27,27 @@ async def chat_endpoint(
 ):
     """Chat endpoint with RAG retrieval + LLM call. Returns response with retrieved sources."""
     try:
+        validate_public_query(payload.prompt)
         conv_repo = ConversationRepository(db)
         msg_repo = MessageRepository(db)
 
         # Create or get conversation
         conversation = None
         if payload.conversation_id:
-            conversation = await conv_repo.get(payload.conversation_id)
+            conversation = await conv_repo.get_for_user(payload.conversation_id, current_user.id)
+            if conversation is None:
+                raise HTTPException(status_code=404, detail="Conversation not found.")
         if not conversation:
-            conversation = await conv_repo.create(title=None)
+            conversation = await conv_repo.create(owner_id=current_user.id, title=None)
             await db.commit()
             logger.info(f"Created conversation {conversation.id}")
 
         # Append user message
-        await msg_repo.append(conversation.id, role="user", content=payload.prompt)
+        await msg_repo.append(
+            conversation.id,
+            role="user",
+            content=sanitize_for_rag(payload.prompt),
+        )
         await db.commit()
         logger.debug(f"Appended user message to conversation {conversation.id}")
 
@@ -60,6 +67,9 @@ async def chat_endpoint(
         # Return ChatResponse model (not raw dict)
         return ChatResponse(**result)
 
+    except OutOfScopeQueryError as e:
+        await db.rollback()
+        raise HTTPException(status_code=403, detail=str(e)) from e
     except Exception as e:
         await db.rollback()
         logger.exception(f"Chat endpoint failed: {type(e).__name__}: {str(e)}")
@@ -78,7 +88,9 @@ async def list_messages(
         # Convert string UUID to UUID object
         conv_id = UUID(conversation_id)
         msg_repo = MessageRepository(db)
-        msgs = await msg_repo.list_for_conversation(conv_id, limit=limit)
+        msgs = await msg_repo.list_for_conversation(
+            conv_id, owner_id=current_user.id, limit=limit
+        )
         return msgs
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid conversation_id UUID format")
@@ -89,7 +101,7 @@ async def list_messages(
 
 @router.post("/documents/upload")
 async def upload_document(
-    current_user: Annotated[User, Depends(get_current_active_user_dependency)],
+    current_user: Annotated[User, Depends(require_role(UserRole.municipality_admin))],
     db: Annotated[AsyncSession, Depends(get_db)],
     source: str | None = None,
     text: str = "",
