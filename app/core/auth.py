@@ -11,6 +11,7 @@ from app.core.security import decode_access_token
 from app.database.session import get_db
 from app.models.enums import ADMIN_ROLES, UserRole
 from app.models.user import User
+from app.models.revoked_token import RevokedToken
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_PREFIX}/auth/login")
 
@@ -31,8 +32,15 @@ async def get_current_user(
         payload = decode_access_token(token)
         user_id = UUID(str(payload["sub"]))
         role = UserRole(str(payload["role"]))
+        jti = str(payload["jti"])
     except (JWTError, ValueError, KeyError):
         raise credentials_exception from None
+
+    revoked = await db.scalar(
+        select(RevokedToken).where(RevokedToken.jti == jti)
+    )
+    if revoked is not None:
+        raise credentials_exception
 
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
