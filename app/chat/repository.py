@@ -3,7 +3,10 @@ from typing import List
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+import logging
 from app.models.chat import Conversation, Message, Document, Embedding
+
+logger = logging.getLogger(__name__)
 
 
 class ConversationRepository:
