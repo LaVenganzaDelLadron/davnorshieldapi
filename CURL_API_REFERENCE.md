@@ -31,6 +31,25 @@ role requirement. “Admin” below means any administrative role.
 
 ## Service routes
 
+### `POST /api/v1/scanner/{url|sms|qr|text}` — RAG-first threat investigation
+
+These routes accept the existing scanner payloads and return the normalized
+`risk_score`, `risk_level`, `threat_category`, `explanation`, and
+`recommendations` response. The configured AI model investigates the artifact
+using sanitized public documents and pending or verified scam-report signals.
+If RAG is not configured or the model fails, the deterministic scanner is used
+as a fallback.
+
+```bash
+curl -sS -X POST "$API/scanner/url" \
+  -H 'Content-Type: application/json' \
+  -d '{"url":"https://example.com/"}'
+
+curl -sS -X POST "$API/scanner/sms" \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"Your account is suspended. Verify now."}'
+```
+
 ### `GET /` — service identity and status
 
 ```bash
@@ -619,4 +638,3 @@ Notes:
 - The chat endpoint performs: embed(prompt) -> retrieve top_k docs -> assemble prompt (system + retrieved + history) -> call LLM -> return message + source snippets.
 - Authentication and rate limits apply per existing API policies.
 - The public JSON key `metadata` is preserved in API responses even though the internal SQLAlchemy model uses `meta_data` to avoid reserved-name conflicts.
-
