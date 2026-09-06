@@ -25,6 +25,7 @@ from app.models import scam_report as _scam_report
 from app.models import school as _school  
 from app.models import threat_pattern as _threat_pattern  
 from app.models import user as _user  
+from app.models import chat as _chat  
 
 
 logger = logging.getLogger(__name__)
