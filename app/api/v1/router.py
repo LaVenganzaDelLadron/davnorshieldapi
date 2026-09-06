@@ -6,6 +6,7 @@ from app.api.v1.auth import router as auth_router
 from app.api.v1.barangays import router as barangays_router
 from app.api.v1.dashboard import router as dashboard_router
 from app.api.v1.heatmap import router as heatmap_router
+from app.api.v1.chat import router as chat_router
 from app.api.v1.municipalities import router as municipalities_router
 from app.api.v1.reports import router as reports_router
 from app.api.v1.scanner import router as scanner_router
@@ -26,4 +27,5 @@ api_router.include_router(barangays_router)
 api_router.include_router(municipalities_router)
 api_router.include_router(dashboard_router)
 api_router.include_router(schools_router)
+api_router.include_router(chat_router)
 
