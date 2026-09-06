@@ -26,6 +26,7 @@ from app.models import school as _school
 from app.models import threat_pattern as _threat_pattern  
 from app.models import user as _user  
 from app.models import chat as _chat  
+from app.models import revoked_token as _revoked_token
 
 
 logger = logging.getLogger(__name__)

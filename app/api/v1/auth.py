@@ -1,13 +1,19 @@
 from __future__ import annotations
 from typing import Annotated
+from datetime import UTC, datetime
+from jose import JWTError
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from app.dependencies import get_current_active_user_dependency, get_db
 from app.schemas.auth import LoginRequest, TokenResponse
 from app.schemas.user import UserCreate, UserPublic, UserResponse
 from app.services.audit_service import AuditService
 from app.services.auth_service import AuthService
+from app.core.auth import oauth2_scheme
+from app.core.security import decode_access_token
+from app.models.revoked_token import RevokedToken
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -51,6 +57,35 @@ async def login(
     return AuthResponse(user=UserPublic.model_validate(result.user), token=result.token)
 
 
+@router.post("/logout")
+async def logout(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    _current_user: Annotated[object, Depends(get_current_active_user_dependency)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> dict[str, str]:
+    """Revoke the current access token until its natural expiration."""
+
+    try:
+        payload = decode_access_token(token)
+        jti = str(payload["jti"])
+        expires_at = datetime.fromtimestamp(float(payload["exp"]), tz=UTC)
+    except (JWTError, KeyError, TypeError, ValueError) as error:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials.",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from error
+
+    existing = await db.scalar(
+        select(RevokedToken).where(RevokedToken.jti == jti)
+    )
+    if existing is None:
+        db.add(RevokedToken(jti=jti, expires_at=expires_at))
+        await db.commit()
+
+    return {"detail": "Successfully logged out."}
+
+
 @router.get("/me", response_model=UserResponse)
 async def me(
     current_user: Annotated[object, Depends(get_current_active_user_dependency)],
@@ -85,4 +120,3 @@ async def deactivate_account(
 
     await AuthService(db).deactivate_user(current_user.id)
     return {"detail": "Account deactivated."}
-

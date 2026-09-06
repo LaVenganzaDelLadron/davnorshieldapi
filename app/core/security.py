@@ -1,6 +1,7 @@
 from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from typing import Any
+from uuid import uuid4
 import bcrypt
 from jose import JWTError, jwt
 from app.config import settings
@@ -41,6 +42,7 @@ def create_access_token(
     payload: dict[str, Any] = {
         "sub": subject,
         "role": role.value if isinstance(role, UserRole) else str(role),
+        "jti": str(uuid4()),
         "exp": expire,
     }
     if additional_claims:
