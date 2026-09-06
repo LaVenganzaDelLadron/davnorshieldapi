@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 class EmbeddingService:
-    """Responsible for creating embeddings from text using GROQ/OpenAI-compatible endpoint."""
+    """Responsible for creating embeddings from text. GROQ doesn't support embeddings natively.
+    This returns placeholder vectors for now. Replace with sentence-transformers or OpenAI embeddings."""
 
     def __init__(self, api_key: str | None = None):
         self.api_key = api_key or settings.GROQ_API_KEY1
@@ -21,33 +22,31 @@ class EmbeddingService:
             logger.warning("EmbeddingService initialized without base URL")
 
     async def embed(self, texts: List[str]) -> List[List[float]]:
-        """Embed a list of texts and return vectors."""
+        """Embed a list of texts and return vectors. Currently returns placeholder vectors.
+        
+        TODO: Implement with sentence-transformers, OpenAI, or a dedicated embedding service.
+        GROQ API does not provide embeddings endpoint.
+        """
         if not texts:
             return []
         
         try:
-            # Use actual API key in Authorization header
-            headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
-            }
-            payload = {"model": settings.AI_MODEL, "input": texts}
+            logger.debug(f"Generating placeholder embeddings for {len(texts)} text(s)")
             
-            logger.debug(f"Embedding {len(texts)} text(s) with model {settings.AI_MODEL}")
+            # Generate placeholder embeddings (deterministic hash-based vectors)
+            # In production, replace with real embedding service
+            embeddings = []
+            for text in texts:
+                # Simple deterministic embedding: hash each text to a fixed-size vector
+                # This is NOT for production use - just a placeholder for development
+                hash_val = hash(text)
+                # Create a consistent 384-dim vector (common for sentence transformers)
+                vector = [(hash_val + i) % 1000 / 1000.0 for i in range(384)]
+                embeddings.append(vector)
             
-            async with httpx.AsyncClient(timeout=settings.GROQ_TIMEOUT) as client:
-                r = await client.post(f"{self.base_url}/embeddings", headers=headers, json=payload)
-                r.raise_for_status()
-                data = r.json()
-            
-            # Parse response to list of vectors
-            embeddings = [item.get("embedding") for item in data.get("data", [])]
-            logger.debug(f"Successfully embedded {len(embeddings)} text(s)")
+            logger.debug(f"Generated {len(embeddings)} placeholder embeddings (384-dim)")
             return embeddings
         
-        except httpx.HTTPError as e:
-            logger.error(f"HTTP error during embedding: {e}")
-            raise RuntimeError(f"Embedding service failed: {str(e)}")
         except Exception as e:
             logger.exception(f"Unexpected error in embedding: {type(e).__name__}: {str(e)}")
             raise
@@ -83,7 +82,7 @@ class RAGChatService:
     async def chat(self, conversation_id: UUID | None, prompt: str, top_k: int = 5, temperature: float = 0.0):
         """Execute a chat query with RAG retrieval and LLM completion."""
         try:
-            # 1. Embed the prompt
+            # 1. Embed the prompt (currently placeholder)
             logger.debug(f"Embedding prompt for conversation {conversation_id}")
             vectors = await self.embedding_service.embed([prompt])
             
@@ -93,35 +92,37 @@ class RAGChatService:
             else:
                 query_vector = vectors[0]
 
-            # 2. Retrieve from vector store
-            logger.debug(f"Searching vector store with top_k={top_k}")
+            # 2. Retrieve from vector store (currently disabled)
+            logger.debug(f"Searching vector store with top_k={top_k} (not implemented)")
             hits = await self.vector_store.search(query_vector, top_k=top_k)
 
             # 3. Assemble system prompt + retrieved snippets
-            system_context = "You are a helpful security assistant that answers using retrieved documents and threat intelligence."
-            retrieved_text = "\n\n".join([h.get("snippet", "") for h in hits]) if hits else "(No relevant documents retrieved)"
-            assembled_prompt = f"{system_context}\n\nContext:\n{retrieved_text}\n\nUser: {prompt}\n\nAssistant:"
-
-            # 4. Call LLM (GROQ/OpenAI-compatible)
+            system_context = "You are a helpful security assistant. Answer questions about cybersecurity, phishing prevention, hacking awareness, and threat intelligence."
+            retrieved_text = "\n\n".join([h.get("snippet", "") for h in hits]) if hits else "(No vector database configured yet - providing general knowledge response)"
+            
+            # 4. Call LLM via GROQ
             logger.debug(f"Calling LLM with model {settings.AI_MODEL}")
             headers = {
                 "Authorization": f"Bearer {self.llm_api_key}",
                 "Content-Type": "application/json"
             }
             
-            # Use messages format for GROQ chat API
+            # Use messages format for GROQ chat/completions API
             payload = {
                 "model": settings.AI_MODEL,
                 "messages": [
                     {"role": "system", "content": system_context},
-                    {"role": "user", "content": f"Context:\n{retrieved_text}\n\nQuestion: {prompt}"}
+                    {"role": "user", "content": prompt}
                 ],
                 "temperature": temperature,
                 "max_tokens": settings.DEFAULT_MAX_CONTEXT_TOKENS
             }
             
             async with httpx.AsyncClient(timeout=settings.GROQ_TIMEOUT) as client:
-                r = await client.post(f"{self.base_url}/chat/completions", headers=headers, json=payload)
+                # Use the base URL directly for chat completions
+                url = f"{self.base_url}/chat/completions"
+                logger.debug(f"Calling LLM endpoint: {url}")
+                r = await client.post(url, headers=headers, json=payload)
                 r.raise_for_status()
                 data = r.json()
 
@@ -149,7 +150,7 @@ class RAGChatService:
             logger.error(f"HTTP error during chat: {e}")
             return {
                 "conversation_id": conversation_id,
-                "message": f"External service error: {str(e)}",
+                "message": f"LLM service error: {str(e)}",
                 "sources": [],
             }
         except Exception as e:
