@@ -27,7 +27,8 @@ class MessageRepository:
         self.session = session
 
     async def append(self, conversation_id: UUID, role: str, content: str, metadata: str | None = None) -> Message:
-        msg = Message(conversation_id=conversation_id, role=role, content=content, metadata=metadata)
+        # Map incoming 'metadata' parameter to the model attribute 'meta_data'
+        msg = Message(conversation_id=conversation_id, role=role, content=content, meta_data=metadata)
         self.session.add(msg)
         await self.session.flush()
         return msg
@@ -54,7 +55,8 @@ class EmbeddingRepository:
         self.session = session
 
     async def upsert(self, document_id: UUID, chunk_index: int, vector: str, metadata: str | None = None) -> Embedding:
-        emb = Embedding(document_id=document_id, chunk_index=chunk_index, vector=vector, metadata=metadata)
+        # Map incoming 'metadata' parameter to the model attribute 'meta_data'
+        emb = Embedding(document_id=document_id, chunk_index=chunk_index, vector=vector, meta_data=metadata)
         self.session.add(emb)
         await self.session.flush()
         return emb
