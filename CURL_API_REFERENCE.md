@@ -542,23 +542,24 @@ These endpoints provide a lightweight AI chat interface backed by a RAG pipeline
 Start or continue a conversation and receive a model response with retrieved sources.
 
 Request JSON:
-
+```json
 {
   "conversation_id": "<optional-uuid>",
   "prompt": "How can I spot a phishing email?",
   "top_k": 5,
   "temperature": 0.0
 }
+```
 
 Example curl:
-
+```bash
 curl -X POST "${BASE_URL:-http://localhost:8000}/api/v1/chat/" \
   -H "Authorization: Bearer ${TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"prompt":"How can I spot a phishing email?","top_k":5}'
-
+```
 Example response (200):
-
+```json
 {
   "conversation_id": "11111111-2222-3333-4444-555555555555",
   "message": "Common signs of phishing include unexpected links, misspelled domains, urgent action requests...",
@@ -566,7 +567,7 @@ Example response (200):
     {"id":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee","score":0.92,"snippet":"...from the official bank domain..."}
   ]
 }
-
+```
 ---
 
 ### GET /api/v1/chat/conversations/{conversation_id}/messages
@@ -574,17 +575,17 @@ Example response (200):
 List messages for a conversation (paginated by `limit`).
 
 Example curl:
-
+```bash
 curl -X GET "${BASE_URL:-http://localhost:8000}/api/v1/chat/conversations/<conversation_id>/messages?limit=100" \
   -H "Authorization: Bearer ${TOKEN}"
-
+```
 Example response:
-
+```json
 [
   {"id":"...","role":"user","content":"How do I...","metadata":null,"created_at":"..."},
   {"id":"...","role":"assistant","content":"...","metadata":null,"created_at":"..."}
 ]
-
+```
 ---
 
 ### POST /api/v1/chat/documents/upload
@@ -592,26 +593,26 @@ Example response:
 Upload a document (text) to the RAG index. The server will chunk and index it (background tasks recommended).
 
 Request JSON:
-
+```json
 {
   "source": "manual-upload",
   "text": "Full document text here..."
 }
-
+```
 Example curl:
-
+```bash
 curl -X POST "${BASE_URL:-http://localhost:8000}/api/v1/chat/documents/upload" \
   -H "Authorization: Bearer ${TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"source":"manual-upload","text":"This is a short doc to index."}'
-
+```
 Example response (201):
-
+```json
 {
   "id": "22222222-3333-4444-5555-666666666666",
   "chunk_count": 1
 }
-
+```
 ---
 
 Notes:
