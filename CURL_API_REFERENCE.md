@@ -109,6 +109,15 @@ curl -sS "$API/auth/me" -H "$AUTH"
 
 Returns the authenticated active user’s full profile.
 
+### `POST /api/v1/auth/logout` — log out the current session
+
+```bash
+curl -sS -X POST "$API/auth/logout" -H "$AUTH"
+```
+
+Revokes the current bearer token until it expires. The token must be supplied
+in the `Authorization` header.
+
 ### `PUT /api/v1/auth/change-password` — change own password
 
 ```bash
