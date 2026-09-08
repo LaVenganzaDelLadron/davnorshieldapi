@@ -437,6 +437,21 @@ curl -sS "$API/barangays/municipality/$MUNICIPALITY_ID"
 
 Returns all barangays in the municipality. No authentication.
 
+### `POST /api/v1/barangays/` — add a barangay
+
+```bash
+curl -sS -X POST "$API/barangays/" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "barangay_name": "Sample Barangay",
+    "municipality_id": "00000000-0000-0000-0000-000000000001"
+  }'
+```
+
+Creates a barangay in an active municipality. Requires a `super_admin` bearer
+token. Replace `municipality_id` with the UUID of an existing municipality.
+
 ### `GET /api/v1/municipalities/` — list municipalities
 
 ```bash
@@ -444,6 +459,20 @@ curl -sS "$API/municipalities/"
 ```
 
 Returns all municipalities. No authentication.
+
+### `POST /api/v1/municipalities/` — add a municipality
+
+```bash
+curl -sS -X POST "$API/municipalities/" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "municipality_name": "Sample Municipality",
+    "province": "Davao del Norte"
+  }'
+```
+
+Creates a municipality or city. Requires a `super_admin` bearer token.
 
 ### `GET /api/v1/municipalities/{municipality_id}` — retrieve a municipality
 
